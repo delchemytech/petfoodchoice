@@ -40,7 +40,7 @@ export function ProductCatalog({ products, categories }: ProductCatalogProps) {
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
-            Recently added
+            All products
           </p>
           <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
             Deals worth the click

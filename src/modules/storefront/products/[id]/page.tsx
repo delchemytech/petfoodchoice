@@ -7,8 +7,6 @@ import {
 import { getStorefrontProducts } from "../../actions/get-products";
 import { ProductDetailView } from "../../components/product-detail-view";
 
-export const dynamic = "force-dynamic";
-
 interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ preview?: string }>;

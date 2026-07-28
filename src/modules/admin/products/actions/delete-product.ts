@@ -1,7 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/modules/auth/lib/require-admin";
+import { revalidateStorefrontPaths } from "../lib/revalidate-storefront";
 import { NOT_DELETE } from "../lib/product-filters";
 
 export async function deleteProduct(id: string) {
@@ -20,9 +20,7 @@ export async function deleteProduct(id: string) {
     throw new Error(error.message);
   }
 
-  revalidatePath("/admin/products");
-  revalidatePath("/admin/dashboard");
-  revalidatePath("/");
+  revalidateStorefrontPaths(id);
 
   return { success: true };
 }

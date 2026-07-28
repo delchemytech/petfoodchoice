@@ -1,9 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/modules/auth/lib/require-admin";
 import type { ProductInsert } from "@/modules/common/types/database";
 import { getCategoryNames } from "@/modules/admin/categories/actions/get-category-names";
+import { revalidateStorefrontPaths } from "../lib/revalidate-storefront";
 import { mapFormToInsert } from "../lib/map-product";
 import { parseProductFormValues } from "../lib/product-form-schema";
 import type { AddProductFormValues } from "../types/add-product";
@@ -31,7 +31,7 @@ export async function createProduct(values: AddProductFormValues) {
     throw new Error(error.message);
   }
 
-  revalidatePath("/admin/products");
+  revalidateStorefrontPaths(data.id);
 
   return { success: true, id: data.id };
 }
