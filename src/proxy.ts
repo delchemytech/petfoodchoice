@@ -9,7 +9,7 @@ function getSafeNextPath(pathname: string) {
   return "/admin/dashboard";
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { user, supabaseResponse } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
