@@ -1,0 +1,29 @@
+import { getStorefrontCategories } from "./actions/get-categories";
+import { getRecentStorefrontProducts } from "./actions/get-products";
+import { HeroSection } from "./components/hero-section";
+import { ProductCatalog } from "./components/product-catalog";
+import { TrustSection } from "./components/trust-section";
+import { ValueTicker } from "./components/value-ticker";
+
+export const dynamic = "force-dynamic";
+
+const HERO_PRODUCTS_LIMIT = 7;
+
+export default async function StorefrontPage() {
+  const [products, categories] = await Promise.all([
+    getRecentStorefrontProducts(),
+    getStorefrontCategories(),
+  ]);
+
+  return (
+    <>
+      <HeroSection products={products.slice(0, HERO_PRODUCTS_LIMIT)} />
+      <ValueTicker />
+      <ProductCatalog
+        products={products}
+        categories={categories.map((category) => category.name)}
+      />
+      <TrustSection />
+    </>
+  );
+}
