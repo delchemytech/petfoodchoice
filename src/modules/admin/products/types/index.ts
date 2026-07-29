@@ -2,6 +2,7 @@ export type ProductStatus = "active" | "inactive";
 
 export interface Product {
   id: string;
+  sourceUrl: string;
   affiliateUrl: string;
   imageUrl: string;
   imageUrls: string[];

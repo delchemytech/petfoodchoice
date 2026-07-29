@@ -168,6 +168,7 @@ function extractDescription($: cheerio.CheerioAPI): string {
 
 export function parseAmazonHtml(
   html: string,
+  sourceUrl: string,
   affiliateUrl: string,
   finalUrl: string,
 ): AddProductFormValues {
@@ -179,7 +180,8 @@ export function parseAmazonHtml(
   const imageUrls = extractImageUrls($);
 
   return {
-    affiliateUrl: sanitizeUrl(affiliateUrl) || sanitizeUrl(finalUrl),
+    sourceUrl: sanitizeUrl(sourceUrl) || sanitizeUrl(finalUrl),
+    affiliateUrl: sanitizeUrl(affiliateUrl) || sanitizeUrl(sourceUrl),
     imageUrl: imageUrls[0] ?? "",
     imageUrls,
     name: sanitizeText($("#productTitle").text()),

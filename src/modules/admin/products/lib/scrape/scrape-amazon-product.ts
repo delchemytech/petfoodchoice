@@ -1,15 +1,17 @@
+import { resolveAmazonProductUrls } from "../amazon-affiliate";
 import type { AddProductFormValues } from "../../types/add-product";
 import { fetchAmazonPage } from "./fetch-amazon-page";
 import { parseAmazonHtml } from "./parse-amazon-html";
 import { assertAllowedAmazonUrl } from "./validate-url";
 
 export async function scrapeAmazonProduct(
-  affiliateUrl: string,
+  productUrl: string,
 ): Promise<AddProductFormValues> {
-  assertAllowedAmazonUrl(affiliateUrl);
+  assertAllowedAmazonUrl(productUrl);
 
-  const { html, finalUrl } = await fetchAmazonPage(affiliateUrl);
-  const product = parseAmazonHtml(html, affiliateUrl, finalUrl);
+  const { sourceUrl, affiliateUrl } = resolveAmazonProductUrls(productUrl);
+  const { html, finalUrl } = await fetchAmazonPage(sourceUrl);
+  const product = parseAmazonHtml(html, sourceUrl, affiliateUrl, finalUrl);
 
   if (!product.name) {
     throw new Error(

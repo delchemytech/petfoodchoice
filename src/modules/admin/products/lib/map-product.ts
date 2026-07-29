@@ -1,5 +1,6 @@
 import type { ProductRow, ProductInsert } from "@/modules/common/types/database";
 import { toProductImagePayload } from "@/modules/common/lib/product-images";
+import { tryResolveAmazonProductUrls } from "./amazon-affiliate";
 import type { AddProductFormValues } from "../types/add-product";
 import type { Product } from "../types";
 
@@ -13,6 +14,7 @@ export function mapProductRow(row: ProductRow): Product {
 
   return {
     id: row.id,
+    sourceUrl: row.source_url ?? row.affiliate_url,
     affiliateUrl: row.affiliate_url,
     imageUrl: row.image_url ?? imageUrls[0] ?? "",
     imageUrls,
@@ -41,9 +43,14 @@ export function mapProductRow(row: ProductRow): Product {
 
 export function mapFormToInsert(values: AddProductFormValues): ProductInsert {
   const images = toProductImagePayload(values.imageUrl, values.imageUrls);
+  const resolved = tryResolveAmazonProductUrls(values.sourceUrl);
 
   return {
-    affiliate_url: values.affiliateUrl.trim(),
+    source_url: resolved?.sourceUrl ?? values.sourceUrl.trim(),
+    affiliate_url:
+      values.affiliateUrl.trim() ||
+      resolved?.affiliateUrl ||
+      values.sourceUrl.trim(),
     image_url: images.image_url,
     image_urls: images.image_urls,
     name: values.name.trim(),
@@ -66,6 +73,7 @@ export function mapProductToFormValues(
   product: Product,
 ): AddProductFormValues {
   return {
+    sourceUrl: product.sourceUrl,
     affiliateUrl: product.affiliateUrl,
     imageUrl: product.imageUrl,
     imageUrls: product.imageUrls,

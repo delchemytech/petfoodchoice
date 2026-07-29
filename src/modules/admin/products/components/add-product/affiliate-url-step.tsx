@@ -16,6 +16,7 @@ import { cn } from "@/modules/common/utils";
 
 interface AffiliateUrlStepProps {
   value: string;
+  generatedAffiliateUrl?: string;
   onChange: (value: string) => void;
   onFetch: () => void;
   isLoading: boolean;
@@ -24,6 +25,7 @@ interface AffiliateUrlStepProps {
 
 export function AffiliateUrlStep({
   value,
+  generatedAffiliateUrl,
   onChange,
   onFetch,
   isLoading,
@@ -41,17 +43,18 @@ export function AffiliateUrlStep({
         <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Link2 className="size-6" />
         </div>
-        <CardTitle>Affiliate Product URL</CardTitle>
+        <CardTitle>Amazon Product URL</CardTitle>
         <CardDescription>
-          Paste an Amazon affiliate link to fetch product details automatically.
+          Paste an amazon.in product link. We will generate your affiliate URL
+          with tag petfoodchoice-21 automatically.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <div className="space-y-2">
-            <Label htmlFor="affiliateUrl">Affiliate Product URL</Label>
+            <Label htmlFor="productUrl">Amazon Product URL</Label>
             <Input
-              id="affiliateUrl"
+              id="productUrl"
               type="url"
               value={value}
               onChange={(event) => onChange(event.target.value)}
@@ -62,6 +65,19 @@ export function AffiliateUrlStep({
             />
             <FormMessage message={error} />
           </div>
+
+          {generatedAffiliateUrl ? (
+            <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+              <Label htmlFor="generatedAffiliateUrl">Generated affiliate URL</Label>
+              <Input
+                id="generatedAffiliateUrl"
+                type="url"
+                value={generatedAffiliateUrl}
+                readOnly
+                className="bg-background font-mono text-xs"
+              />
+            </div>
+          ) : null}
 
           <div className="flex justify-center">
             <Button type="submit" disabled={!value.trim() || isLoading} size="lg">

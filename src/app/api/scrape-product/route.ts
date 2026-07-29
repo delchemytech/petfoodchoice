@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     if (!url) {
       return NextResponse.json(
-        { success: false, error: "Affiliate URL is required." },
+        { success: false, error: "Amazon product URL is required." },
         { status: 400 },
       );
     }

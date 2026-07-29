@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { MAX_PRODUCT_IMAGES } from "@/modules/common/lib/product-images";
 import {
+  assertAmazonIndiaUrl,
+  isAmazonIndiaHost,
+} from "./amazon-affiliate";
+import {
   ADD_PRODUCT_STATUSES,
   AFFILIATE_STORES,
   CURRENCIES,
@@ -44,21 +48,52 @@ function optionalNumberField(options: {
   );
 }
 
-export const affiliateUrlSchema = z.object({
-  affiliateUrl: z
+export const amazonProductUrlSchema = z.object({
+  productUrl: z
     .string()
     .trim()
-    .min(1, "Affiliate URL is required.")
-    .refine(isValidUrl, "Enter a valid affiliate URL."),
+    .min(1, "Amazon product URL is required.")
+    .refine(isValidUrl, "Enter a valid Amazon India URL.")
+    .refine((value) => {
+      try {
+        assertAmazonIndiaUrl(value);
+        return true;
+      } catch {
+        return false;
+      }
+    }, "Only amazon.in or www.amazon.in URLs with a valid ASIN are allowed."),
 });
+
+export const affiliateUrlSchema = amazonProductUrlSchema;
 
 export function createProductFormSchema(allowedCategories: string[]) {
   return z.object({
+    sourceUrl: z
+      .string()
+      .trim()
+      .min(1, "Amazon product URL is required.")
+      .refine(isValidUrl, "Enter a valid Amazon India URL.")
+      .refine((value) => {
+        try {
+          assertAmazonIndiaUrl(value);
+          return true;
+        } catch {
+          return false;
+        }
+      }, "Only amazon.in or www.amazon.in URLs with a valid ASIN are allowed."),
     affiliateUrl: z
       .string()
       .trim()
       .min(1, "Affiliate URL is required.")
-      .refine(isValidUrl, "Enter a valid affiliate URL."),
+      .refine(isValidUrl, "Enter a valid affiliate URL.")
+      .refine((value) => {
+        try {
+          const hostname = new URL(value).hostname.toLowerCase();
+          return isAmazonIndiaHost(hostname);
+        } catch {
+          return false;
+        }
+      }, "Affiliate URL must use amazon.in or www.amazon.in."),
     imageUrl: z
       .string()
       .refine(

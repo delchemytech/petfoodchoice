@@ -16,6 +16,7 @@ export interface CategoryRow {
 export interface ProductRow {
   id: string;
   affiliate_url: string;
+  source_url: string | null;
   image_url: string | null;
   image_urls: string[];
   name: string;
@@ -38,6 +39,7 @@ export interface ProductRow {
 export interface ProductInsert {
   id?: string;
   affiliate_url: string;
+  source_url?: string | null;
   image_url?: string | null;
   image_urls?: string[];
   name: string;
@@ -60,6 +62,7 @@ export interface ProductInsert {
 export interface ProductUpdate {
   id?: string;
   affiliate_url?: string;
+  source_url?: string | null;
   image_url?: string | null;
   image_urls?: string[];
   name?: string;
@@ -74,6 +77,49 @@ export interface ProductUpdate {
   total_reviews?: number | null;
   short_description?: string | null;
   status?: ProductStatus;
+  delete?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface BlogRow {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  cover_image_url: string | null;
+  category_id: string | null;
+  delete: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BlogCategoryRow {
+  id: string;
+  name: string;
+  delete: boolean;
+  created_at: string;
+}
+
+export interface BlogInsert {
+  id?: string;
+  title: string;
+  slug: string;
+  content: string;
+  cover_image_url?: string | null;
+  category_id?: string | null;
+  delete?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface BlogUpdate {
+  id?: string;
+  title?: string;
+  slug?: string;
+  content?: string;
+  cover_image_url?: string | null;
+  category_id?: string | null;
   delete?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -116,6 +162,28 @@ export type Database = {
         Row: ProductRow;
         Insert: ProductInsert;
         Update: ProductUpdate;
+        Relationships: [];
+      };
+      blogs: {
+        Row: BlogRow;
+        Insert: BlogInsert;
+        Update: BlogUpdate;
+        Relationships: [];
+      };
+      blog_categories: {
+        Row: BlogCategoryRow;
+        Insert: {
+          id?: string;
+          name: string;
+          delete?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          delete?: boolean;
+          created_at?: string;
+        };
         Relationships: [];
       };
     };

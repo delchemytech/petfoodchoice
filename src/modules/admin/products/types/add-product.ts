@@ -9,6 +9,7 @@ export type AffiliateStore =
   | "Nykaa";
 
 export interface AddProductFormValues {
+  sourceUrl: string;
   affiliateUrl: string;
   imageUrl: string;
   imageUrls: string[];

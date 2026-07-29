@@ -1,4 +1,6 @@
 import {
+  FileText,
+  FolderOpen,
   LayoutDashboard,
   Package,
   Tags,
@@ -27,6 +29,16 @@ export const adminNavItems: AdminNavItem[] = [
     href: "/admin/categories",
     icon: Tags,
   },
+  {
+    title: "Blogs",
+    href: "/admin/blogs",
+    icon: FileText,
+  },
+  {
+    title: "Blog Categories",
+    href: "/admin/blog-categories",
+    icon: FolderOpen,
+  },
 ];
 
 export function isAdminNavActive(pathname: string, href: string) {
@@ -42,6 +54,10 @@ export function getAdminPageTitle(pathname: string): string {
   if (pathname.startsWith("/admin/products/edit")) return "Edit Product";
   if (pathname.startsWith("/admin/products")) return "Products";
   if (pathname.startsWith("/admin/categories")) return "Categories";
+  if (pathname.startsWith("/admin/blogs/add")) return "New Blog";
+  if (pathname.startsWith("/admin/blogs/edit")) return "Edit Blog";
+  if (pathname.startsWith("/admin/blogs")) return "Blogs";
+  if (pathname.startsWith("/admin/blog-categories")) return "Blog Categories";
   if (pathname.startsWith("/admin/dashboard")) return "Dashboard";
   return "Admin";
 }

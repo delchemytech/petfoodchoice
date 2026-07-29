@@ -71,15 +71,31 @@ export function ProductDetailsFields({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="affiliateUrl">Affiliate Product URL</Label>
+              <Label htmlFor="sourceUrl">Amazon Product URL</Label>
+              <Input
+                id="sourceUrl"
+                type="url"
+                value={values.sourceUrl}
+                readOnly
+                className="bg-muted/50"
+                aria-invalid={Boolean(errors?.sourceUrl)}
+              />
+              <FormMessage message={errors?.sourceUrl} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="affiliateUrl">Affiliate URL (used on shop)</Label>
               <Input
                 id="affiliateUrl"
                 type="url"
                 value={values.affiliateUrl}
-                readOnly
-                className="bg-muted/50"
+                onChange={(event) => onChange("affiliateUrl", event.target.value)}
+                className={fieldClassName(Boolean(errors?.affiliateUrl))}
                 aria-invalid={Boolean(errors?.affiliateUrl)}
               />
+              <p className="text-xs text-muted-foreground">
+                Generated with tag petfoodchoice-21. You can edit this manually if needed.
+              </p>
               <FormMessage message={errors?.affiliateUrl} />
             </div>
 
