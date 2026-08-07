@@ -58,17 +58,13 @@ export function EditProductForm({ product, categories }: EditProductFormProps) {
     setSaveError(null);
 
     startSaveTransition(async () => {
-      try {
-        await updateProduct(product.id, formValues);
-        router.push("/admin/products");
-        router.refresh();
-      } catch (error) {
-        setSaveError(
-          error instanceof Error
-            ? error.message
-            : "Failed to update product. Please try again.",
-        );
+      const result = await updateProduct(product.id, formValues);
+      if (!result.success) {
+        setSaveError(result.error);
+        return;
       }
+
+      router.push("/admin/products");
     });
   }
 

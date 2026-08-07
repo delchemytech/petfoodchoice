@@ -179,17 +179,13 @@ export function AddProductForm({ categories }: AddProductFormProps) {
     setSaveError(null);
 
     startSaveTransition(async () => {
-      try {
-        await createProduct(formValues);
-        router.push("/admin/products");
-        router.refresh();
-      } catch (error) {
-        setSaveError(
-          error instanceof Error
-            ? error.message
-            : "Failed to save product. Please try again.",
-        );
+      const result = await createProduct(formValues);
+      if (!result.success) {
+        setSaveError(result.error);
+        return;
       }
+
+      router.push("/admin/products");
     });
   }
 

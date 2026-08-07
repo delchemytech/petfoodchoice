@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/modules/auth/lib/require-admin";
 import { NOT_DELETE } from "../lib/category-filters";
 import { mapCategoryRow } from "../lib/map-category";
