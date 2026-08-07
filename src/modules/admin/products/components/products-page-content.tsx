@@ -23,6 +23,11 @@ import {
   TableRow,
 } from "@/modules/common/ui/table";
 import { deleteProduct } from "../actions/delete-product";
+import {
+  getAmazonDisplayPrice,
+  getFlipkartDisplayPrice,
+  getProductStoreLabel,
+} from "../lib/product-display";
 import { filterProducts } from "../hooks/use-products";
 import {
   PRODUCT_STATUSES,
@@ -38,6 +43,52 @@ function formatPrice(value: number, currency: string) {
     currency,
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function formatOptionalPrice(
+  value: number | null,
+  currency: string,
+  hasListing: boolean,
+) {
+  if (!hasListing) {
+    return "—";
+  }
+
+  if (value === null) {
+    return "—";
+  }
+
+  return formatPrice(value, currency);
+}
+
+function ProductStorePrices({
+  product,
+  className,
+}: {
+  product: Product;
+  className?: string;
+}) {
+  const hasAmazon = product.amazonAffiliateUrl.trim().length > 0;
+  const hasFlipkart = product.flipkartAffiliateUrl.trim().length > 0;
+  const amazonPrice = getAmazonDisplayPrice(product);
+  const flipkartPrice = getFlipkartDisplayPrice(product);
+
+  return (
+    <div className={className}>
+      <div className="tabular-nums">
+        <span className="text-muted-foreground">Amazon </span>
+        <span className="font-medium">
+          {formatOptionalPrice(amazonPrice, product.currency, hasAmazon)}
+        </span>
+      </div>
+      <div className="tabular-nums">
+        <span className="text-muted-foreground">Flipkart </span>
+        <span className="font-medium">
+          {formatOptionalPrice(flipkartPrice, product.currency, hasFlipkart)}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 interface ProductsPageContentProps {
@@ -60,7 +111,7 @@ function ProductActions({
         nativeButton={false}
         render={
           <Link
-            href={`/products/${product.id}?preview=true`}
+            href={`/products/${product.slug}?preview=true`}
             target="_blank"
             rel="noopener noreferrer"
           />
@@ -223,17 +274,15 @@ export function ProductsPageContent({
                     {product.name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {product.brand || "No brand"} · {product.store} ·{" "}
+                    {product.brand || "No brand"} · {getProductStoreLabel(product)} ·{" "}
                     {product.category}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
                     <ProductStatusBadge status={product.status} />
-                    <span className="text-sm font-medium tabular-nums">
-                      {formatPrice(product.currentPrice, product.currency)}
-                    </span>
+                    <ProductStorePrices product={product} className="text-sm" />
                   </div>
                   <ProductActions
                     product={product}
@@ -261,7 +310,13 @@ export function ProductsPageContent({
                 <TableHead className="hidden lg:table-cell">Store</TableHead>
                 <TableHead className="hidden lg:table-cell">Category</TableHead>
                 <TableHead className="hidden md:table-cell">Status</TableHead>
-                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="hidden text-right xl:table-cell">
+                  Amazon Price
+                </TableHead>
+                <TableHead className="hidden text-right xl:table-cell">
+                  Flipkart Price
+                </TableHead>
+                <TableHead className="text-right xl:hidden">Prices</TableHead>
                 <TableHead className="w-28 text-right xl:w-36">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -269,7 +324,7 @@ export function ProductsPageContent({
               {filteredProducts.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={8}
                     className="h-24 text-center text-muted-foreground"
                   >
                     {emptyMessage}
@@ -303,12 +358,12 @@ export function ProductsPageContent({
                           {product.brand || "No brand"}
                         </p>
                         <p className="truncate text-xs text-muted-foreground lg:hidden">
-                          {product.store} · {product.category}
+                          {getProductStoreLabel(product)} · {product.category}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="hidden max-w-[120px] truncate lg:table-cell">
-                      {product.store}
+                      {getProductStoreLabel(product)}
                     </TableCell>
                     <TableCell className="hidden max-w-[140px] truncate lg:table-cell">
                       {product.category}
@@ -316,8 +371,25 @@ export function ProductsPageContent({
                     <TableCell className="hidden md:table-cell">
                       <ProductStatusBadge status={product.status} />
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {formatPrice(product.currentPrice, product.currency)}
+                    <TableCell className="hidden text-right tabular-nums xl:table-cell">
+                      {formatOptionalPrice(
+                        getAmazonDisplayPrice(product),
+                        product.currency,
+                        product.amazonAffiliateUrl.trim().length > 0,
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden text-right tabular-nums xl:table-cell">
+                      {formatOptionalPrice(
+                        getFlipkartDisplayPrice(product),
+                        product.currency,
+                        product.flipkartAffiliateUrl.trim().length > 0,
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right xl:hidden">
+                      <ProductStorePrices
+                        product={product}
+                        className="text-sm"
+                      />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end">

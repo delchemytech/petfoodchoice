@@ -50,7 +50,7 @@ export function calculateDiscount(
     Number.isNaN(original) ||
     original <= current
   ) {
-    return "0";
+    return "";
   }
 
   return String(Math.round(((original - current) / original) * 100));

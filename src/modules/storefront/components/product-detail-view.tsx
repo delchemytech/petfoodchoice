@@ -2,6 +2,10 @@ import Link from "next/link";
 import { ArrowLeft, Check, ExternalLink, Star } from "lucide-react";
 import { Button } from "@/modules/common/ui/button";
 import { formatPrice, formatReviewCount, formatSavings } from "../lib/format-price";
+import {
+  hasAmazonOffer,
+  hasFlipkartOffer,
+} from "../lib/store-offers";
 import type { StorefrontProduct } from "../types";
 import { ProductImageGallery } from "./product-image-gallery";
 import { ProductPreviewBanner } from "./product-preview-banner";
@@ -19,17 +23,53 @@ interface ProductDetailViewProps {
   preview?: ProductDetailPreviewOptions;
 }
 
+function StorePriceRow({
+  storeName,
+  currentPrice,
+  originalPrice,
+  currency,
+}: {
+  storeName: string;
+  currentPrice: number | null;
+  originalPrice: number | null;
+  currency: string;
+}) {
+  if (currentPrice === null) {
+    return null;
+  }
+
+  const savings = formatSavings(currentPrice, originalPrice, currency);
+
+  return (
+    <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
+      <p className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+        {storeName}
+      </p>
+      <p className="mt-2 text-2xl font-semibold tabular-nums sm:text-3xl">
+        {formatPrice(currentPrice, currency)}
+      </p>
+      {originalPrice !== null && originalPrice > currentPrice ? (
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span className="line-through tabular-nums">
+            {formatPrice(originalPrice, currency)}
+          </span>
+          {savings ? (
+            <span className="font-medium text-primary">Save {savings}</span>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function ProductDetailView({
   product,
   relatedProducts = [],
   preview,
 }: ProductDetailViewProps) {
-  const savings = formatSavings(
-    product.currentPrice,
-    product.originalPrice,
-    product.currency,
-  );
   const backHref = preview?.backHref ?? "/";
+  const showAmazon = hasAmazonOffer(product);
+  const showFlipkart = hasFlipkartOffer(product);
 
   return (
     <div className="bg-background">
@@ -61,9 +101,16 @@ export function ProductDetailView({
           <div className="space-y-6">
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <span className="rounded-full border border-border px-3 py-1 text-xs font-medium">
-                  {product.store}
-                </span>
+                {showAmazon ? (
+                  <span className="rounded-full border border-border px-3 py-1 text-xs font-medium">
+                    Amazon
+                  </span>
+                ) : null}
+                {showFlipkart ? (
+                  <span className="rounded-full border border-border px-3 py-1 text-xs font-medium">
+                    Flipkart
+                  </span>
+                ) : null}
                 <span className="rounded-full border border-border px-3 py-1 text-xs font-medium">
                   {product.category}
                 </span>
@@ -100,39 +147,70 @@ export function ProductDetailView({
             </div>
 
             <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-sm">
-              <div className="space-y-1">
-                <p className="text-3xl font-semibold tabular-nums sm:text-4xl">
-                  {formatPrice(product.currentPrice, product.currency)}
-                </p>
-                {product.originalPrice !== null &&
-                product.originalPrice > product.currentPrice ? (
-                  <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                    <span className="line-through tabular-nums">
-                      {formatPrice(product.originalPrice, product.currency)}
-                    </span>
-                    {savings ? <span className="font-medium text-primary">Save {savings}</span> : null}
-                  </div>
+              <h2 className="text-sm font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                Compare prices
+              </h2>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {showAmazon ? (
+                  <StorePriceRow
+                    storeName="Amazon"
+                    currentPrice={product.amazonCurrentPrice}
+                    originalPrice={product.amazonOriginalPrice}
+                    currency={product.currency}
+                  />
+                ) : null}
+                {showFlipkart ? (
+                  <StorePriceRow
+                    storeName="Flipkart"
+                    currentPrice={product.flipkartCurrentPrice}
+                    originalPrice={product.flipkartOriginalPrice}
+                    currency={product.currency}
+                  />
                 ) : null}
               </div>
 
-              <Button
-                size="lg"
-                className="mt-5 h-12 w-full rounded-full"
-                nativeButton={false}
-                render={
-                  <a
-                    href={product.affiliateUrl}
-                    target="_blank"
-                    rel="noopener noreferrer sponsored"
-                  />
-                }
-              >
-                Buy on {product.store}
-                <ExternalLink data-icon="inline-end" />
-              </Button>
+              <div className="mt-5 flex flex-col gap-3">
+                {showAmazon ? (
+                  <Button
+                    size="lg"
+                    className="h-12 w-full rounded-full"
+                    nativeButton={false}
+                    render={
+                      <a
+                        href={product.amazonAffiliateUrl}
+                        target="_blank"
+                        rel="noopener noreferrer sponsored"
+                      />
+                    }
+                  >
+                    Buy from Amazon
+                    <ExternalLink data-icon="inline-end" />
+                  </Button>
+                ) : null}
+
+                {showFlipkart ? (
+                  <Button
+                    size="lg"
+                    variant={showAmazon ? "outline" : "default"}
+                    className="h-12 w-full rounded-full"
+                    nativeButton={false}
+                    render={
+                      <a
+                        href={product.flipkartAffiliateUrl}
+                        target="_blank"
+                        rel="noopener noreferrer sponsored"
+                      />
+                    }
+                  >
+                    Buy from Flipkart
+                    <ExternalLink data-icon="inline-end" />
+                  </Button>
+                ) : null}
+              </div>
 
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                Price last checked today · affiliate link
+                Price last checked today · affiliate links
               </p>
             </div>
 

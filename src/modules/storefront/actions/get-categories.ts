@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseAnonServerClient } from "@/modules/common/lib/supabase/server";
+import { getCurrentWebsiteId } from "@/modules/common/lib/website/get-current-website-id";
 import { NOT_DELETE } from "@/modules/admin/categories/lib/category-filters";
 import {
   getDefaultCategories,
@@ -11,11 +12,17 @@ import type { Category } from "@/modules/admin/categories/types";
 import { sortCategories } from "@/modules/common/lib/category-match";
 
 export async function getStorefrontCategories(): Promise<Category[]> {
+  const websiteId = await getCurrentWebsiteId();
+  if (!websiteId) {
+    return getDefaultCategories();
+  }
+
   const supabase = createSupabaseAnonServerClient();
 
   const { data, error } = await supabase
     .from("categories")
     .select("*")
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .order("name", { ascending: true });
 
@@ -27,6 +34,7 @@ export async function getStorefrontCategories(): Promise<Category[]> {
       const { data: fallbackData, error: fallbackError } = await supabase
         .from("categories")
         .select("*")
+        .eq("website_id", websiteId)
         .order("name", { ascending: true });
 
       if (fallbackError) {

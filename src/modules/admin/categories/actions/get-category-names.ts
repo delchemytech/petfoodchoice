@@ -6,11 +6,12 @@ import { NOT_DELETE } from "../lib/category-filters";
 import { getDefaultCategories, isCategoriesTableMissing } from "../lib/defaults";
 
 export async function getCategoryNames(): Promise<string[]> {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data, error } = await supabase
     .from("categories")
     .select("name")
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .order("name", { ascending: true });
 

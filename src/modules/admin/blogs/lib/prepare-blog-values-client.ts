@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadBlogImage } from "../actions/upload-blog-image";
+import type { BlogFormValues } from "../types";
 
 async function uploadDataUrlImage(dataUrl: string) {
   const response = await fetch(dataUrl);
@@ -8,6 +8,7 @@ async function uploadDataUrlImage(dataUrl: string) {
   const extension = blob.type.split("/")[1] || "jpg";
   const formData = new FormData();
   formData.append("file", blob, `image.${extension}`);
+  const { uploadBlogImage } = await import("../actions/upload-blog-image");
   const result = await uploadBlogImage(formData);
   return result.url;
 }
@@ -31,13 +32,9 @@ async function uploadContentImages(html: string) {
   return nextHtml;
 }
 
-export async function prepareBlogValuesClient(values: {
-  title: string;
-  slug: string;
-  content: string;
-  coverImageUrl: string;
-  categoryId: string;
-}) {
+export async function prepareBlogValuesClient(
+  values: BlogFormValues,
+): Promise<BlogFormValues> {
   let coverImageUrl = values.coverImageUrl;
 
   if (coverImageUrl.startsWith("data:image/")) {

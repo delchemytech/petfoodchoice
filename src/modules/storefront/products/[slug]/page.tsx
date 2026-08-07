@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
-  getStorefrontProductById,
-  getStorefrontProductPreviewById,
+  getStorefrontProductBySlug,
+  getStorefrontProductPreviewBySlug,
 } from "../../actions/get-product";
 import { getStorefrontProducts } from "../../actions/get-products";
 import { ProductDetailView } from "../../components/product-detail-view";
 
 interface ProductDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
   searchParams: Promise<{ preview?: string }>;
 }
 
@@ -16,13 +16,13 @@ export async function generateMetadata({
   params,
   searchParams,
 }: ProductDetailPageProps): Promise<Metadata> {
-  const { id } = await params;
+  const { slug } = await params;
   const { preview } = await searchParams;
   const isPreview = preview === "true";
 
   const result = isPreview
-    ? await getStorefrontProductPreviewById(id)
-    : await getStorefrontProductById(id).then((product) =>
+    ? await getStorefrontProductPreviewBySlug(slug)
+    : await getStorefrontProductBySlug(slug).then((product) =>
         product ? { product, status: "active" as const } : null,
       );
 
@@ -40,12 +40,12 @@ export default async function ProductDetailPage({
   params,
   searchParams,
 }: ProductDetailPageProps) {
-  const { id } = await params;
+  const { slug } = await params;
   const { preview } = await searchParams;
   const isPreview = preview === "true";
 
   if (isPreview) {
-    const result = await getStorefrontProductPreviewById(id);
+    const result = await getStorefrontProductPreviewBySlug(slug);
 
     if (!result) {
       notFound();
@@ -56,14 +56,14 @@ export default async function ProductDetailPage({
         product={result.product}
         preview={{
           status: result.status,
-          editHref: `/admin/products/edit/${id}`,
+          editHref: `/admin/products/edit/${result.product.id}`,
           backHref: "/admin/products",
         }}
       />
     );
   }
 
-  const product = await getStorefrontProductById(id);
+  const product = await getStorefrontProductBySlug(slug);
 
   if (!product) {
     notFound();

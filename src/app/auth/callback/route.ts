@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/modules/common/lib/supabase/server";
+import { resolveAppSession } from "@/modules/auth/lib/resolve-app-session";
 
 function getSafeNextPath(value: string | null) {
   if (!value || !value.startsWith("/admin")) {
@@ -19,7 +20,19 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const result = await resolveAppSession(supabase, user);
+
+        if (result.status === "ok") {
+          return NextResponse.redirect(`${origin}${next}`);
+        }
+
+        await supabase.auth.signOut();
+      }
     }
   }
 

@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
+import type { Database } from "@/modules/common/types/database";
 import { assertSupabaseConfigured } from "./env";
 
 /**
@@ -7,5 +8,5 @@ import { assertSupabaseConfigured } from "./env";
 export function createSupabaseBrowserClient() {
   const { url, anonKey } = assertSupabaseConfigured();
 
-  return createBrowserClient(url, anonKey);
+  return createBrowserClient<Database>(url, anonKey);
 }

@@ -9,11 +9,12 @@ import { sortCategories } from "@/modules/common/lib/category-match";
 import type { Category } from "../types";
 
 export async function getCategories(): Promise<Category[]> {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data, error } = await supabase
     .from("categories")
     .select("*")
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .order("name", { ascending: true });
 
@@ -25,6 +26,7 @@ export async function getCategories(): Promise<Category[]> {
       const { data: fallbackData, error: fallbackError } = await supabase
         .from("categories")
         .select("*")
+        .eq("website_id", websiteId)
         .order("name", { ascending: true });
 
       if (fallbackError) {

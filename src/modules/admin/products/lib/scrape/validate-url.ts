@@ -2,6 +2,10 @@ import {
   AmazonUrlError,
   assertAmazonIndiaUrl,
 } from "../amazon-affiliate";
+import {
+  FlipkartUrlError,
+  assertFlipkartUrl,
+} from "../flipkart-affiliate";
 
 export class ScrapeValidationError extends Error {
   constructor(message: string) {
@@ -15,6 +19,17 @@ export function assertAllowedAmazonUrl(urlString: string): URL {
     return assertAmazonIndiaUrl(urlString);
   } catch (error) {
     if (error instanceof AmazonUrlError) {
+      throw new ScrapeValidationError(error.message);
+    }
+    throw error;
+  }
+}
+
+export function assertAllowedFlipkartUrl(urlString: string): URL {
+  try {
+    return assertFlipkartUrl(urlString);
+  } catch (error) {
+    if (error instanceof FlipkartUrlError) {
       throw new ScrapeValidationError(error.message);
     }
     throw error;

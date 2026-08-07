@@ -5,7 +5,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/modules/common/utils";
 import { formatPrice } from "../lib/format-price";
+import {
+  hasAmazonOffer,
+  hasFlipkartOffer,
+} from "../lib/store-offers";
 import type { StorefrontProduct } from "../types";
+
+function getStoreLabel(product: StorefrontProduct) {
+  const stores = [];
+  if (hasAmazonOffer(product)) stores.push("Amazon");
+  if (hasFlipkartOffer(product)) stores.push("Flipkart");
+  return stores.join(" · ") || "Store";
+}
 
 const SLIDE_INTERVAL_MS = 4500;
 
@@ -63,7 +74,7 @@ export function HeroProductSlider({ products }: HeroProductSliderProps) {
         return (
           <Link
             key={product.id}
-            href={`/products/${product.id}`}
+            href={`/products/${product.slug}`}
             aria-hidden={!isActive}
             tabIndex={isActive ? 0 : -1}
             className={cn(
@@ -98,7 +109,7 @@ export function HeroProductSlider({ products }: HeroProductSliderProps) {
 
             <div className="absolute inset-x-0 bottom-0 space-y-2 p-8 text-white">
               <p className="text-xs font-semibold tracking-[0.18em] text-white/75 uppercase">
-                {product.store} · {product.category}
+                {getStoreLabel(product)} · {product.category}
               </p>
               <h3 className="font-heading line-clamp-2 text-2xl leading-tight font-semibold">
                 {product.name}

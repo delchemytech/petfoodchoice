@@ -4,6 +4,8 @@ import type { Database } from "@/modules/common/types/database";
 const BUCKET = "blog-images";
 const MAX_BYTES = 5 * 1024 * 1024;
 
+import type { BlogFormValues } from "../types";
+
 type AdminSupabase = SupabaseClient<Database>;
 
 function extensionFromMime(mime: string) {
@@ -86,14 +88,8 @@ export async function uploadContentImageReferences(
 
 export async function normalizeBlogValuesForSave(
   supabase: AdminSupabase,
-  values: {
-    title: string;
-    slug: string;
-    content: string;
-    coverImageUrl: string;
-    categoryId: string;
-  },
-) {
+  values: BlogFormValues,
+): Promise<BlogFormValues> {
   const coverImageUrl = await uploadImageReference(
     supabase,
     values.coverImageUrl,

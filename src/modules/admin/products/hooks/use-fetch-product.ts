@@ -9,6 +9,7 @@ import type {
 interface ScrapeProductApiSuccess {
   success: true;
   data: AddProductFormValues;
+  warnings?: string[];
 }
 
 interface ScrapeProductApiError {
@@ -20,11 +21,17 @@ type ScrapeProductApiResponse =
   | ScrapeProductApiSuccess
   | ScrapeProductApiError;
 
+interface FetchProductInput {
+  amazonUrl: string;
+  flipkartUrl?: string;
+}
+
 interface UseFetchProductResult {
   status: FetchProductStatus;
   fetchedData: AddProductFormValues | null;
   errorMessage: string | null;
-  fetchProduct: (affiliateUrl: string) => Promise<void>;
+  fetchWarnings: string[];
+  fetchProduct: (input: FetchProductInput) => Promise<void>;
   reset: () => void;
 }
 
@@ -34,11 +41,13 @@ export function useFetchProduct(): UseFetchProductResult {
     null,
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fetchWarnings, setFetchWarnings] = useState<string[]>([]);
 
-  const fetchProduct = useCallback(async (affiliateUrl: string) => {
+  const fetchProduct = useCallback(async (input: FetchProductInput) => {
     setStatus("loading");
     setFetchedData(null);
     setErrorMessage(null);
+    setFetchWarnings([]);
 
     try {
       const response = await fetch("/api/scrape-product", {
@@ -46,7 +55,10 @@ export function useFetchProduct(): UseFetchProductResult {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: affiliateUrl }),
+        body: JSON.stringify({
+          amazonUrl: input.amazonUrl.trim(),
+          flipkartUrl: input.flipkartUrl?.trim() || undefined,
+        }),
       });
 
       const result = (await response.json()) as ScrapeProductApiResponse;
@@ -58,6 +70,7 @@ export function useFetchProduct(): UseFetchProductResult {
       }
 
       setFetchedData(result.data);
+      setFetchWarnings(result.warnings ?? []);
       setStatus("success");
     } catch (error) {
       setStatus("error");
@@ -73,7 +86,15 @@ export function useFetchProduct(): UseFetchProductResult {
     setStatus("idle");
     setFetchedData(null);
     setErrorMessage(null);
+    setFetchWarnings([]);
   }, []);
 
-  return { status, fetchedData, errorMessage, fetchProduct, reset };
+  return {
+    status,
+    fetchedData,
+    errorMessage,
+    fetchWarnings,
+    fetchProduct,
+    reset,
+  };
 }

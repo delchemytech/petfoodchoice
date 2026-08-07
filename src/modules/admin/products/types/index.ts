@@ -2,17 +2,22 @@ export type ProductStatus = "active" | "inactive";
 
 export interface Product {
   id: string;
-  sourceUrl: string;
-  affiliateUrl: string;
+  amazonSourceUrl: string;
+  amazonAffiliateUrl: string;
+  amazonCurrentPrice: number;
+  amazonOriginalPrice: number | null;
+  amazonDiscountPercentage: number | null;
+  flipkartSourceUrl: string;
+  flipkartAffiliateUrl: string;
+  flipkartCurrentPrice: number | null;
+  flipkartOriginalPrice: number | null;
+  flipkartDiscountPercentage: number | null;
   imageUrl: string;
   imageUrls: string[];
   name: string;
+  slug: string;
   brand: string;
-  store: string;
   category: string;
-  currentPrice: number;
-  originalPrice: number | null;
-  discountPercentage: number | null;
   currency: string;
   rating: number | null;
   totalReviews: number | null;

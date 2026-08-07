@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, AuthError } from "@/modules/auth/lib/require-admin";
-import { scrapeAmazonProduct } from "@/modules/admin/products/lib/scrape/scrape-amazon-product";
+import { scrapeProducts } from "@/modules/admin/products/lib/scrape/scrape-products";
 import { assertRateLimit } from "@/modules/admin/products/lib/scrape/rate-limit";
 import { ScrapeValidationError } from "@/modules/admin/products/lib/scrape/validate-url";
 
 export const runtime = "nodejs";
 
 interface ScrapeRequestBody {
+  amazonUrl?: string;
+  flipkartUrl?: string;
   url?: string;
 }
 
@@ -24,18 +26,23 @@ export async function POST(request: Request) {
     assertRateLimit(clientKey);
 
     const body = (await request.json()) as ScrapeRequestBody;
-    const url = body.url?.trim();
+    const amazonUrl = body.amazonUrl?.trim() || body.url?.trim();
+    const flipkartUrl = body.flipkartUrl?.trim();
 
-    if (!url) {
+    if (!amazonUrl) {
       return NextResponse.json(
         { success: false, error: "Amazon product URL is required." },
         { status: 400 },
       );
     }
 
-    const product = await scrapeAmazonProduct(url);
+    const { data, warnings } = await scrapeProducts(amazonUrl, flipkartUrl);
 
-    return NextResponse.json({ success: true, data: product });
+    return NextResponse.json({
+      success: true,
+      data,
+      warnings: warnings.length > 0 ? warnings : undefined,
+    });
   } catch (error) {
     if (error instanceof AuthError) {
       return NextResponse.json(

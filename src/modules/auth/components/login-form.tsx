@@ -28,6 +28,10 @@ function getErrorMessage(errorCode: string | null) {
     return "You do not have admin access. Contact the site owner.";
   }
 
+  if (errorCode === "onboard") {
+    return "Your account is not linked to a website yet. Please onboard first.";
+  }
+
   return null;
 }
 

@@ -11,12 +11,13 @@ function revalidatePaths() {
 }
 
 export async function deleteBlogCategory(id: string) {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data: category, error: categoryError } = await supabase
     .from("blog_categories")
     .select("id, name")
     .eq("id", id)
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .maybeSingle();
 
@@ -31,6 +32,7 @@ export async function deleteBlogCategory(id: string) {
   const { count, error: blogsError } = await supabase
     .from("blogs")
     .select("id", { count: "exact", head: true })
+    .eq("website_id", websiteId)
     .eq("category_id", id)
     .eq("delete", NOT_DELETE);
 
@@ -48,6 +50,7 @@ export async function deleteBlogCategory(id: string) {
     .from("blog_categories")
     .update({ delete: true })
     .eq("id", id)
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE);
 
   if (error) {

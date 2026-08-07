@@ -1,17 +1,20 @@
 import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import type { Database } from "@/modules/common/types/database";
 import { assertSupabaseConfigured } from "./env";
 
 /**
  * Cookie-aware Supabase client for authenticated admin requests.
  * Use in Server Components, Server Actions, and Route Handlers.
  */
-export async function createSupabaseServerClient() {
+export async function createSupabaseServerClient(): Promise<
+  SupabaseClient<Database>
+> {
   const { url, anonKey } = assertSupabaseConfigured();
   const cookieStore = await cookies();
 
-  return createServerClient(url, anonKey, {
+  return createServerClient<Database>(url, anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -33,10 +36,10 @@ export async function createSupabaseServerClient() {
  * Anonymous server client for public storefront reads.
  * Always uses the anon role so catalog queries stay consistent.
  */
-export function createSupabaseAnonServerClient() {
+export function createSupabaseAnonServerClient(): SupabaseClient<Database> {
   const { url, anonKey } = assertSupabaseConfigured();
 
-  return createClient(url, anonKey, {
+  return createClient<Database>(url, anonKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,

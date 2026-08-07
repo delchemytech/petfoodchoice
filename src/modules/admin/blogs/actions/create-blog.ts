@@ -6,18 +6,22 @@ import { mapFormToInsert } from "../lib/map-blog";
 import { parseBlogFormValues } from "../lib/blog-form-schema";
 import { revalidateBlogPaths } from "../lib/revalidate-blog-paths";
 import { normalizeBlogValuesForSave } from "../lib/upload-blog-asset";
-import type { BlogFormValues } from "../types";
+import type { BlogFormValues, BlogSaveMode } from "../types";
 
-export async function createBlog(values: BlogFormValues) {
+export async function createBlog(
+  values: BlogFormValues,
+  _mode: BlogSaveMode = "draft",
+) {
   const { supabase } = await requireAdmin();
-  const parsed = parseBlogFormValues(values);
+  const mode: BlogSaveMode = "draft";
+  const parsed = parseBlogFormValues(values, mode);
 
   if (!parsed.success) {
     throw new Error(parsed.error.issues[0]?.message ?? "Invalid blog data.");
   }
 
   const normalized = await normalizeBlogValuesForSave(supabase, parsed.data);
-  const payload: BlogInsert = mapFormToInsert(normalized);
+  const payload: BlogInsert = mapFormToInsert(normalized, mode);
 
   const { data, error } = await supabase
     .from("blogs")

@@ -15,25 +15,33 @@ import { Label } from "@/modules/common/ui/label";
 import { cn } from "@/modules/common/utils";
 
 interface AffiliateUrlStepProps {
-  value: string;
-  generatedAffiliateUrl?: string;
-  onChange: (value: string) => void;
+  amazonUrl: string;
+  flipkartUrl: string;
+  generatedAmazonAffiliateUrl?: string;
+  generatedFlipkartAffiliateUrl?: string;
+  onAmazonUrlChange: (value: string) => void;
+  onFlipkartUrlChange: (value: string) => void;
   onFetch: () => void;
   isLoading: boolean;
-  error?: string;
+  amazonError?: string;
+  flipkartError?: string;
 }
 
 export function AffiliateUrlStep({
-  value,
-  generatedAffiliateUrl,
-  onChange,
+  amazonUrl,
+  flipkartUrl,
+  generatedAmazonAffiliateUrl,
+  generatedFlipkartAffiliateUrl,
+  onAmazonUrlChange,
+  onFlipkartUrlChange,
   onFetch,
   isLoading,
-  error,
+  amazonError,
+  flipkartError,
 }: AffiliateUrlStepProps) {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (!value.trim() || isLoading) return;
+    if (!amazonUrl.trim() || isLoading) return;
     onFetch();
   }
 
@@ -43,36 +51,72 @@ export function AffiliateUrlStep({
         <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Link2 className="size-6" />
         </div>
-        <CardTitle>Amazon Product URL</CardTitle>
+        <CardTitle>Product URLs</CardTitle>
         <CardDescription>
-          Paste an amazon.in product link. We will generate your affiliate URL
-          with tag petfoodchoice-21 automatically.
+          Paste Amazon and Flipkart links. We fetch details from Amazon and
+          store both affiliate URLs for price comparison on the shop.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <div className="space-y-2">
-            <Label htmlFor="productUrl">Amazon Product URL</Label>
+            <Label htmlFor="amazonUrl">Amazon Product URL</Label>
             <Input
-              id="productUrl"
+              id="amazonUrl"
               type="url"
-              value={value}
-              onChange={(event) => onChange(event.target.value)}
+              value={amazonUrl}
+              onChange={(event) => onAmazonUrlChange(event.target.value)}
               placeholder="https://www.amazon.in/dp/..."
               disabled={isLoading}
-              aria-invalid={Boolean(error)}
-              className={cn(error && "border-destructive")}
+              aria-invalid={Boolean(amazonError)}
+              className={cn(amazonError && "border-destructive")}
             />
-            <FormMessage message={error} />
+            <FormMessage message={amazonError} />
           </div>
 
-          {generatedAffiliateUrl ? (
+          {generatedAmazonAffiliateUrl ? (
             <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
-              <Label htmlFor="generatedAffiliateUrl">Generated affiliate URL</Label>
+              <Label htmlFor="generatedAmazonAffiliateUrl">
+                Generated Amazon affiliate URL
+              </Label>
               <Input
-                id="generatedAffiliateUrl"
+                id="generatedAmazonAffiliateUrl"
                 type="url"
-                value={generatedAffiliateUrl}
+                value={generatedAmazonAffiliateUrl}
+                readOnly
+                className="bg-background font-mono text-xs"
+              />
+            </div>
+          ) : null}
+
+          <div className="space-y-2">
+            <Label htmlFor="flipkartUrl">Flipkart Product URL</Label>
+            <Input
+              id="flipkartUrl"
+              type="url"
+              value={flipkartUrl}
+              onChange={(event) => onFlipkartUrlChange(event.target.value)}
+              placeholder="https://www.flipkart.com/..."
+              disabled={isLoading}
+              aria-invalid={Boolean(flipkartError)}
+              className={cn(flipkartError && "border-destructive")}
+            />
+            <p className="text-xs text-muted-foreground">
+            Optional at fetch time. Prices are auto-fetched when you provide a
+            valid Flipkart link.
+            </p>
+            <FormMessage message={flipkartError} />
+          </div>
+
+          {generatedFlipkartAffiliateUrl ? (
+            <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+              <Label htmlFor="generatedFlipkartAffiliateUrl">
+                Generated Flipkart affiliate URL
+              </Label>
+              <Input
+                id="generatedFlipkartAffiliateUrl"
+                type="url"
+                value={generatedFlipkartAffiliateUrl}
                 readOnly
                 className="bg-background font-mono text-xs"
               />
@@ -80,7 +124,11 @@ export function AffiliateUrlStep({
           ) : null}
 
           <div className="flex justify-center">
-            <Button type="submit" disabled={!value.trim() || isLoading} size="lg">
+            <Button
+              type="submit"
+              disabled={!amazonUrl.trim() || isLoading}
+              size="lg"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" data-icon="inline-start" />

@@ -6,11 +6,12 @@ import { mapBlogCategoryRow, sortBlogCategories } from "../lib/map-blog-category
 import type { BlogCategory } from "../types";
 
 export async function getBlogCategories(): Promise<BlogCategory[]> {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data, error } = await supabase
     .from("blog_categories")
     .select("*")
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .order("name", { ascending: true });
 

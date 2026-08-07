@@ -18,7 +18,7 @@ function revalidatePaths() {
 }
 
 export async function createBlogCategory(name: string) {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
   const parsed = parseBlogCategoryName(name);
 
   if (!parsed.success) {
@@ -29,9 +29,26 @@ export async function createBlogCategory(name: string) {
 
   const normalized = normalizeName(parsed.data.name);
 
+  const { data: activeMatch, error: activeError } = await supabase
+    .from("blog_categories")
+    .select("id")
+    .eq("website_id", websiteId)
+    .eq("name", normalized)
+    .eq("delete", NOT_DELETE)
+    .maybeSingle();
+
+  if (activeError) {
+    throw new Error(activeError.message);
+  }
+
+  if (activeMatch) {
+    throw new Error("This blog category already exists.");
+  }
+
   const { data: deletedMatch, error: deletedError } = await supabase
     .from("blog_categories")
     .select("*")
+    .eq("website_id", websiteId)
     .eq("name", normalized)
     .eq("delete", true)
     .maybeSingle();
@@ -45,6 +62,7 @@ export async function createBlogCategory(name: string) {
       .from("blog_categories")
       .update({ delete: false })
       .eq("id", deletedMatch.id)
+      .eq("website_id", websiteId)
       .select("*")
       .single();
 
@@ -58,7 +76,11 @@ export async function createBlogCategory(name: string) {
 
   const { data, error } = await supabase
     .from("blog_categories")
-    .insert({ name: normalized, delete: false })
+    .insert({
+      website_id: websiteId,
+      name: normalized,
+      delete: false,
+    })
     .select("*")
     .single();
 

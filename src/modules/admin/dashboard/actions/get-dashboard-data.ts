@@ -2,6 +2,10 @@
 
 import { getProducts } from "@/modules/admin/products/actions/get-products";
 import type { Product } from "@/modules/admin/products/types";
+import {
+  getProductListingPrice,
+  getProductStoreLabel,
+} from "@/modules/admin/products/lib/product-display";
 import { formatRelativeTime } from "../lib/format-date";
 import type {
   DashboardData,
@@ -48,10 +52,10 @@ function buildRecentProducts(products: Product[]): RecentProduct[] {
   return products.slice(0, 5).map((product) => ({
     id: product.id,
     name: product.name,
-    store: product.store,
+    store: getProductStoreLabel(product),
     category: product.category,
     status: product.status,
-    price: formatPrice(product.currentPrice, product.currency),
+    price: formatPrice(getProductListingPrice(product), product.currency),
   }));
 }
 

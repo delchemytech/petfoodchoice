@@ -9,7 +9,7 @@ import { parseProductFormValues } from "../lib/product-form-schema";
 import type { AddProductFormValues } from "../types/add-product";
 
 export async function createProduct(values: AddProductFormValues) {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
   const categoryNames = await getCategoryNames();
   const parsed = parseProductFormValues(values, categoryNames);
 
@@ -19,19 +19,27 @@ export async function createProduct(values: AddProductFormValues) {
     );
   }
 
-  const payload: ProductInsert = mapFormToInsert(parsed.data);
+  const payload: ProductInsert = {
+    ...mapFormToInsert(parsed.data),
+    website_id: websiteId,
+  };
 
   const { data, error } = await supabase
     .from("products")
     .insert(payload)
-    .select("id")
+    .select("id, slug")
     .single();
 
   if (error) {
+    if (error.code === "23505") {
+      throw new Error(
+        "This URL slug is already in use. Choose a different one.",
+      );
+    }
     throw new Error(error.message);
   }
 
-  revalidateStorefrontPaths(data.id);
+  revalidateStorefrontPaths({ productId: data.id, slug: data.slug });
 
   return { success: true, id: data.id };
 }

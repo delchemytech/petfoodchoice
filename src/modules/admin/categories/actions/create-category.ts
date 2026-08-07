@@ -11,7 +11,7 @@ function normalizeCategoryName(name: string) {
 }
 
 export async function createCategory(name: string) {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
   const parsed = parseCategoryName(name);
 
   if (!parsed.success) {
@@ -22,9 +22,26 @@ export async function createCategory(name: string) {
 
   const normalized = normalizeCategoryName(parsed.data.name);
 
+  const { data: activeMatch, error: activeError } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("website_id", websiteId)
+    .eq("name", normalized)
+    .eq("delete", NOT_DELETE)
+    .maybeSingle();
+
+  if (activeError) {
+    throw new Error(activeError.message);
+  }
+
+  if (activeMatch) {
+    throw new Error("This category already exists.");
+  }
+
   const { data: deletedMatch, error: deletedError } = await supabase
     .from("categories")
     .select("*")
+    .eq("website_id", websiteId)
     .eq("name", normalized)
     .eq("delete", true)
     .maybeSingle();
@@ -38,6 +55,7 @@ export async function createCategory(name: string) {
       .from("categories")
       .update({ delete: false })
       .eq("id", deletedMatch.id)
+      .eq("website_id", websiteId)
       .select("*")
       .single();
 
@@ -51,7 +69,11 @@ export async function createCategory(name: string) {
 
   const { data, error } = await supabase
     .from("categories")
-    .insert({ name: normalized, delete: false })
+    .insert({
+      website_id: websiteId,
+      name: normalized,
+      delete: false,
+    })
     .select("*")
     .single();
 

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/modules/common/lib/supabase/server";
+import { resolveAppSession, type AppSession } from "./resolve-app-session";
 
 export class AuthError extends Error {
   constructor(message: string) {
@@ -7,6 +8,8 @@ export class AuthError extends Error {
     this.name = "AuthError";
   }
 }
+
+export type { AppSession } from "./resolve-app-session";
 
 export async function getAdminSession() {
   const supabase = await createSupabaseServerClient();
@@ -20,21 +23,13 @@ export async function getAdminSession() {
     return null;
   }
 
-  const { data: admin, error: adminError } = await supabase
-    .from("admin_users")
-    .select("id, email")
-    .eq("id", user.id)
-    .maybeSingle();
+  const result = await resolveAppSession(supabase, user);
 
-  if (adminError || !admin) {
+  if (result.status !== "ok") {
     return null;
   }
 
-  return {
-    supabase,
-    user,
-    email: admin.email,
-  };
+  return result.session;
 }
 
 export async function requireAdmin() {
@@ -47,7 +42,7 @@ export async function requireAdmin() {
   return session;
 }
 
-export async function requireAdminOrRedirect() {
+export async function requireAdminOrRedirect(): Promise<AppSession> {
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -58,20 +53,12 @@ export async function requireAdminOrRedirect() {
     redirect("/login");
   }
 
-  const { data: admin, error: adminError } = await supabase
-    .from("admin_users")
-    .select("id, email")
-    .eq("id", user.id)
-    .maybeSingle();
+  const result = await resolveAppSession(supabase, user);
 
-  if (adminError || !admin) {
-    await supabase.auth.signOut();
-    redirect("/login?error=unauthorized");
+  if (result.status === "ok") {
+    return result.session;
   }
 
-  return {
-    supabase,
-    user,
-    email: admin.email,
-  };
+  await supabase.auth.signOut();
+  redirect("/login?error=unauthorized");
 }

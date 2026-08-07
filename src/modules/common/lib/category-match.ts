@@ -5,7 +5,18 @@ export function isOthersCategory(category: string) {
 }
 
 export function sortCategoryNames(categories: string[]): string[] {
-  return [...categories].sort((a, b) => {
+  const seen = new Set<string>();
+  const unique = categories.filter((category) => {
+    const normalized = category.trim().toLowerCase();
+    if (!normalized || seen.has(normalized)) {
+      return false;
+    }
+
+    seen.add(normalized);
+    return true;
+  });
+
+  return unique.sort((a, b) => {
     const aIsOthers = isOthersCategory(a);
     const bIsOthers = isOthersCategory(b);
 
@@ -18,7 +29,18 @@ export function sortCategoryNames(categories: string[]): string[] {
 }
 
 export function sortCategories<T extends { name: string }>(categories: T[]): T[] {
-  return [...categories].sort((a, b) => {
+  const seen = new Set<string>();
+  const unique = categories.filter((category) => {
+    const normalized = category.name.trim().toLowerCase();
+    if (!normalized || seen.has(normalized)) {
+      return false;
+    }
+
+    seen.add(normalized);
+    return true;
+  });
+
+  return unique.sort((a, b) => {
     const aIsOthers = isOthersCategory(a.name);
     const bIsOthers = isOthersCategory(b.name);
 

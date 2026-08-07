@@ -2,7 +2,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { formatPrice, formatSavings } from "../lib/format-price";
+import {
+  hasAmazonOffer,
+  hasFlipkartOffer,
+} from "../lib/store-offers";
 import type { StorefrontProduct } from "../types";
+
+function getStoreLabel(product: StorefrontProduct) {
+  const stores = [];
+  if (hasAmazonOffer(product)) stores.push("Amazon");
+  if (hasFlipkartOffer(product)) stores.push("Flipkart");
+  return stores.join(" · ") || "Store";
+}
 
 interface ProductCardProps {
   product: StorefrontProduct;
@@ -19,7 +30,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
   );
 
   return (
-    <Link href={`/products/${product.id}`} className="group block h-full">
+    <Link href={`/products/${product.slug}`} className="group block h-full">
       <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
         <div className="relative aspect-[4/5] overflow-hidden bg-[#f3ecdf]">
           {product.imageUrl ? (
@@ -45,13 +56,13 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           ) : null}
 
           <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-foreground uppercase backdrop-blur">
-            {product.store} · {product.category}
+            {getStoreLabel(product)} · {product.category}
           </span>
         </div>
 
         <div className="flex flex-1 flex-col gap-3 p-4">
           <div className="flex items-center justify-between gap-2 text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-            <span className="truncate">{product.brand || product.store}</span>
+            <span className="truncate">{product.brand || getStoreLabel(product)}</span>
             <span className="shrink-0 rounded-full border border-border px-2 py-0.5">
               {product.category}
             </span>

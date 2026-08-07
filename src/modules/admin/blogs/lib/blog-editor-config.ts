@@ -32,7 +32,7 @@ export function createBlogEditorExtensions(): Extensions {
     }),
     Image.configure({
       HTMLAttributes: {
-        class: "my-4 max-w-full rounded-sm",
+        class: "blog-inline-image",
       },
     }),
     TextAlign.configure({

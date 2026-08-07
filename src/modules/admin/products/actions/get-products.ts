@@ -6,11 +6,12 @@ import { NOT_DELETE } from "../lib/product-filters";
 import type { Product } from "../types";
 
 export async function getProducts(): Promise<Product[]> {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data, error } = await supabase
     .from("products")
     .select("*")
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .order("created_at", { ascending: false });
 

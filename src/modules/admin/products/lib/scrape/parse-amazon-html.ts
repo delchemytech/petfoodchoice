@@ -178,19 +178,25 @@ export function parseAmazonHtml(
   const originalPrice = extractOriginalPrice($);
 
   const imageUrls = extractImageUrls($);
+  const name = sanitizeText($("#productTitle").text());
 
   return {
-    sourceUrl: sanitizeUrl(sourceUrl) || sanitizeUrl(finalUrl),
-    affiliateUrl: sanitizeUrl(affiliateUrl) || sanitizeUrl(sourceUrl),
+    amazonSourceUrl: sanitizeUrl(sourceUrl) || sanitizeUrl(finalUrl),
+    amazonAffiliateUrl: sanitizeUrl(affiliateUrl) || sanitizeUrl(sourceUrl),
+    amazonCurrentPrice: currentPrice,
+    amazonOriginalPrice: originalPrice,
+    amazonDiscountPercentage: calculateDiscount(currentPrice, originalPrice),
+    flipkartSourceUrl: "",
+    flipkartAffiliateUrl: "",
+    flipkartCurrentPrice: "",
+    flipkartOriginalPrice: "",
+    flipkartDiscountPercentage: "",
     imageUrl: imageUrls[0] ?? "",
     imageUrls,
-    name: sanitizeText($("#productTitle").text()),
+    name,
+    slug: "",
     brand: extractBrand($),
-    store: "Amazon",
     category: extractCategory($),
-    currentPrice,
-    originalPrice,
-    discountPercentage: calculateDiscount(currentPrice, originalPrice),
     currency: getCurrencyFromHostname(finalHostname),
     rating: extractRating($),
     totalReviews: extractReviewCount($),

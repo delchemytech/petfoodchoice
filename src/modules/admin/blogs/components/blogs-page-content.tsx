@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { PageHeader } from "../../components/page-header";
+import { Badge } from "@/modules/common/ui/badge";
 import { Button } from "@/modules/common/ui/button";
 import { Input } from "@/modules/common/ui/input";
 import {
@@ -70,7 +71,7 @@ export function BlogsPageContent({ initialBlogs }: BlogsPageContentProps) {
 
   const emptyMessage =
     blogs.length === 0
-      ? "No blogs yet. Publish your first post to get started."
+      ? "No blogs yet. Save a draft or publish your first post."
       : "No blogs match your search.";
 
   return (
@@ -121,31 +122,38 @@ export function BlogsPageContent({ initialBlogs }: BlogsPageContentProps) {
 
               <div className="min-w-0 flex-1 space-y-2">
                 <div className="space-y-1">
-                  <p className="line-clamp-2 font-medium leading-snug">
-                    {blog.title}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="line-clamp-2 font-medium leading-snug">
+                      {blog.title}
+                    </p>
+                    <Badge variant={blog.published ? "default" : "secondary"}>
+                      {blog.published ? "Published" : "Draft"}
+                    </Badge>
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     /blogs/{blog.slug} · {blog.categoryName ?? "No category"} ·{" "}
-                    {formatDate(blog.createdAt)}
+                    {formatDate(blog.publishedAt ?? blog.createdAt)}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-end gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    nativeButton={false}
-                    render={
-                      <Link
-                        href={`/blogs/${blog.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      />
-                    }
-                    aria-label={`View ${blog.title}`}
-                  >
-                    <Eye />
-                  </Button>
+                  {blog.published ? (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      nativeButton={false}
+                      render={
+                        <Link
+                          href={`/blogs/${blog.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      }
+                      aria-label={`View ${blog.title}`}
+                    >
+                      <Eye />
+                    </Button>
+                  ) : null}
                   <Button
                     variant="ghost"
                     size="icon-sm"
@@ -181,7 +189,8 @@ export function BlogsPageContent({ initialBlogs }: BlogsPageContentProps) {
               <TableHead>Title</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Slug</TableHead>
-              <TableHead>Published</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Date</TableHead>
               <TableHead className="w-28 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -189,7 +198,7 @@ export function BlogsPageContent({ initialBlogs }: BlogsPageContentProps) {
             {filteredBlogs.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="h-24 text-center text-muted-foreground"
                 >
                   {emptyMessage}
@@ -220,24 +229,33 @@ export function BlogsPageContent({ initialBlogs }: BlogsPageContentProps) {
                   <TableCell className="text-muted-foreground">
                     /blogs/{blog.slug}
                   </TableCell>
-                  <TableCell>{formatDate(blog.createdAt)}</TableCell>
+                  <TableCell>
+                    <Badge variant={blog.published ? "default" : "secondary"}>
+                      {blog.published ? "Published" : "Draft"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {formatDate(blog.publishedAt ?? blog.createdAt)}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        nativeButton={false}
-                        render={
-                          <Link
-                            href={`/blogs/${blog.slug}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          />
-                        }
-                        aria-label={`View ${blog.title}`}
-                      >
-                        <Eye />
-                      </Button>
+                      {blog.published ? (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          nativeButton={false}
+                          render={
+                            <Link
+                              href={`/blogs/${blog.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            />
+                          }
+                          aria-label={`View ${blog.title}`}
+                        >
+                          <Eye />
+                        </Button>
+                      ) : null}
                       <Button
                         variant="ghost"
                         size="icon-sm"

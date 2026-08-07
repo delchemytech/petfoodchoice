@@ -1,23 +1,34 @@
 "use server";
 
 import { requireAdmin } from "@/modules/auth/lib/require-admin";
+import { getBlog } from "./get-blog";
 import { mapFormToUpdate } from "../lib/map-blog";
 import { parseBlogFormValues } from "../lib/blog-form-schema";
 import { revalidateBlogPaths } from "../lib/revalidate-blog-paths";
 import { normalizeBlogValuesForSave } from "../lib/upload-blog-asset";
 import { NOT_DELETE } from "../lib/blog-filters";
-import type { BlogFormValues } from "../types";
+import type { BlogFormValues, BlogSaveMode } from "../types";
 
-export async function updateBlog(id: string, values: BlogFormValues) {
+export async function updateBlog(
+  id: string,
+  values: BlogFormValues,
+  mode: BlogSaveMode = "publish",
+) {
   const { supabase } = await requireAdmin();
-  const parsed = parseBlogFormValues(values);
+  const existing = await getBlog(id);
+
+  if (!existing) {
+    throw new Error("Blog not found.");
+  }
+
+  const parsed = parseBlogFormValues(values, mode);
 
   if (!parsed.success) {
     throw new Error(parsed.error.issues[0]?.message ?? "Invalid blog data.");
   }
 
   const normalized = await normalizeBlogValuesForSave(supabase, parsed.data);
-  const payload = mapFormToUpdate(normalized);
+  const payload = mapFormToUpdate(normalized, mode, existing);
 
   const { data, error } = await supabase
     .from("blogs")

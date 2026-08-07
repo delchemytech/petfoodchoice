@@ -12,7 +12,7 @@ export async function updateProduct(
   id: string,
   values: AddProductFormValues,
 ) {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
   const categoryNames = await getCategoryNames();
   const parsed = parseProductFormValues(values, categoryNames);
 
@@ -22,19 +22,47 @@ export async function updateProduct(
     );
   }
 
+  const { data: existing, error: existingError } = await supabase
+    .from("products")
+    .select("slug")
+    .eq("id", id)
+    .eq("website_id", websiteId)
+    .eq("delete", NOT_DELETE)
+    .maybeSingle();
+
+  if (existingError) {
+    throw new Error(existingError.message);
+  }
+
+  if (!existing) {
+    throw new Error("Product not found.");
+  }
+
   const payload = mapFormToInsert(parsed.data);
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("products")
     .update(payload)
     .eq("id", id)
-    .eq("delete", NOT_DELETE);
+    .eq("website_id", websiteId)
+    .eq("delete", NOT_DELETE)
+    .select("id, slug")
+    .single();
 
   if (error) {
+    if (error.code === "23505") {
+      throw new Error(
+        "This URL slug is already in use. Choose a different one.",
+      );
+    }
     throw new Error(error.message);
   }
 
-  revalidateStorefrontPaths(id);
+  revalidateStorefrontPaths({
+    productId: data.id,
+    slug: data.slug,
+    previousSlug: existing.slug,
+  });
 
   return { success: true };
 }

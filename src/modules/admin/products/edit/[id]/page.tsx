@@ -37,7 +37,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
               nativeButton={false}
               render={
                 <Link
-                  href={`/products/${id}?preview=true`}
+                  href={`/products/${product.slug}?preview=true`}
                   target="_blank"
                   rel="noopener noreferrer"
                 />

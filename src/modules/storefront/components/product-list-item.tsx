@@ -2,7 +2,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { formatPrice, formatSavings } from "../lib/format-price";
+import {
+  hasAmazonOffer,
+  hasFlipkartOffer,
+} from "../lib/store-offers";
 import type { StorefrontProduct } from "../types";
+
+function getStoreLabel(product: StorefrontProduct) {
+  const stores = [];
+  if (hasAmazonOffer(product)) stores.push("Amazon");
+  if (hasFlipkartOffer(product)) stores.push("Flipkart");
+  return stores.join(" · ") || "Store";
+}
 
 interface ProductListItemProps {
   product: StorefrontProduct;
@@ -23,7 +34,7 @@ export function ProductListItem({
 
   return (
     <Link
-      href={`/products/${product.id}`}
+      href={`/products/${product.slug}`}
       className="group flex gap-3 rounded-3xl border border-border/80 bg-card p-3 shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="relative size-28 shrink-0 overflow-hidden rounded-2xl bg-[#f3ecdf]">
@@ -52,7 +63,7 @@ export function ProductListItem({
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 py-0.5">
         <div className="min-w-0 space-y-1">
           <p className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-            {product.brand || product.store} · {product.category}
+            {product.brand || getStoreLabel(product)} · {product.category}
           </p>
           <h3 className="line-clamp-2 font-heading text-base leading-snug font-semibold">
             {product.name}

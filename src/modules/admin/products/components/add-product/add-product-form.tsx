@@ -8,11 +8,14 @@ import { zodFieldErrors } from "@/modules/common/lib/zod-field-errors";
 import { Button } from "@/modules/common/ui/button";
 import { cn } from "@/modules/common/utils";
 import { tryResolveAmazonProductUrls } from "../../lib/amazon-affiliate";
+import { tryResolveFlipkartProductUrls } from "../../lib/flipkart-affiliate";
 import { createProduct } from "../../actions/create-product";
 import { useFetchProduct } from "../../hooks/use-fetch-product";
 import {
   amazonProductUrlSchema,
+  flipkartProductUrlSchema,
   parseProductFormValues,
+  slugifyProductName,
 } from "../../lib/product-form-schema";
 import type { AddProductFormValues } from "../../types/add-product";
 import { AffiliateUrlStep } from "./affiliate-url-step";
@@ -32,64 +35,132 @@ interface AddProductFormProps {
 export function AddProductForm({ categories }: AddProductFormProps) {
   const router = useRouter();
   const [isSaving, startSaveTransition] = useTransition();
-  const { status, fetchedData, errorMessage, fetchProduct, reset } =
-    useFetchProduct();
-  const [productUrl, setProductUrl] = useState("");
+  const {
+    status,
+    fetchedData,
+    errorMessage,
+    fetchWarnings,
+    fetchProduct,
+    reset,
+  } = useFetchProduct();
+  const [amazonUrl, setAmazonUrl] = useState("");
+  const [flipkartUrl, setFlipkartUrl] = useState("");
   const [formValues, setFormValues] = useState<AddProductFormValues | null>(null);
+  const [slugTouched, setSlugTouched] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [urlError, setUrlError] = useState<string | null>(null);
+  const [amazonUrlError, setAmazonUrlError] = useState<string | null>(null);
+  const [flipkartUrlError, setFlipkartUrlError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof AddProductFormValues, string>>
   >({});
 
-  const generatedAffiliateUrl = useMemo(() => {
-    return tryResolveAmazonProductUrls(productUrl)?.affiliateUrl;
-  }, [productUrl]);
+  const generatedAmazonAffiliateUrl = useMemo(() => {
+    return tryResolveAmazonProductUrls(amazonUrl)?.affiliateUrl;
+  }, [amazonUrl]);
+
+  const generatedFlipkartAffiliateUrl = useMemo(() => {
+    return tryResolveFlipkartProductUrls(flipkartUrl)?.affiliateUrl;
+  }, [flipkartUrl]);
+
+  const categoryKey = useMemo(
+    () => categories.filter(Boolean).join("|"),
+    [categories],
+  );
 
   useEffect(() => {
-    if (fetchedData) {
-      setFormValues({
-        ...fetchedData,
-        category: resolveCategory(fetchedData.category, categories),
-      });
-      setFieldErrors({});
-    }
-  }, [fetchedData, categories]);
+    if (!fetchedData) return;
+
+    setFormValues({
+      ...fetchedData,
+      slug:
+        fetchedData.slug.trim() ||
+        slugifyProductName(fetchedData.name) ||
+        "product",
+      category: resolveCategory(fetchedData.category, categories),
+    });
+    setSlugTouched(false);
+    setFieldErrors({});
+  }, [fetchedData, categoryKey]);
 
   function updateField<K extends keyof AddProductFormValues>(
     key: K,
     value: AddProductFormValues[K],
   ) {
-    setFormValues((current) => (current ? { ...current, [key]: value } : null));
+    if (key === "slug") {
+      setSlugTouched(true);
+    }
+
+    setFormValues((current) => {
+      if (!current) return null;
+
+      if (key === "name" && !slugTouched) {
+        const name = value as string;
+        return {
+          ...current,
+          name,
+          slug: slugifyProductName(name) || "product",
+        };
+      }
+
+      return { ...current, [key]: value };
+    });
     setFieldErrors((current) => {
-      if (!current[key]) return current;
+      if (!current[key] && !(key === "name" && current.slug)) return current;
       const next = { ...current };
       delete next[key];
+      if (key === "name" && !slugTouched) {
+        delete next.slug;
+      }
       return next;
     });
   }
 
   async function handleFetch() {
-    const parsed = amazonProductUrlSchema.safeParse({
-      productUrl: productUrl.trim(),
+    const amazonParsed = amazonProductUrlSchema.safeParse({
+      productUrl: amazonUrl.trim(),
     });
 
-    if (!parsed.success) {
-      setUrlError(
-        parsed.error.issues[0]?.message ?? "Enter a valid Amazon India URL.",
+    if (!amazonParsed.success) {
+      setAmazonUrlError(
+        amazonParsed.error.issues[0]?.message ??
+          "Enter a valid Amazon India URL.",
       );
       return;
     }
 
-    setUrlError(null);
-    await fetchProduct(productUrl.trim());
+    setAmazonUrlError(null);
+
+    if (flipkartUrl.trim()) {
+      const flipkartParsed = flipkartProductUrlSchema.safeParse({
+        productUrl: flipkartUrl.trim(),
+      });
+
+      if (!flipkartParsed.success) {
+        setFlipkartUrlError(
+          flipkartParsed.error.issues[0]?.message ??
+            "Enter a valid Flipkart URL.",
+        );
+        return;
+      }
+
+      setFlipkartUrlError(null);
+    } else {
+      setFlipkartUrlError(null);
+    }
+
+    await fetchProduct({
+      amazonUrl: amazonUrl.trim(),
+      flipkartUrl: flipkartUrl.trim() || undefined,
+    });
   }
 
   function handleRetry() {
     reset();
     setFormValues(null);
+    setSlugTouched(false);
     setSaveError(null);
-    setUrlError(null);
+    setAmazonUrlError(null);
+    setFlipkartUrlError(null);
     setFieldErrors({});
   }
 
@@ -135,15 +206,22 @@ export function AddProductForm({ categories }: AddProductFormProps) {
           ) : null}
 
           <AffiliateUrlStep
-            value={productUrl}
-            generatedAffiliateUrl={generatedAffiliateUrl}
-            onChange={(value) => {
-              setProductUrl(value);
-              if (urlError) setUrlError(null);
+            amazonUrl={amazonUrl}
+            flipkartUrl={flipkartUrl}
+            generatedAmazonAffiliateUrl={generatedAmazonAffiliateUrl}
+            generatedFlipkartAffiliateUrl={generatedFlipkartAffiliateUrl}
+            onAmazonUrlChange={(value) => {
+              setAmazonUrl(value);
+              if (amazonUrlError) setAmazonUrlError(null);
+            }}
+            onFlipkartUrlChange={(value) => {
+              setFlipkartUrl(value);
+              if (flipkartUrlError) setFlipkartUrlError(null);
             }}
             onFetch={handleFetch}
             isLoading={false}
-            error={urlError ?? undefined}
+            amazonError={amazonUrlError ?? undefined}
+            flipkartError={flipkartUrlError ?? undefined}
           />
         </div>
       ) : null}
@@ -158,7 +236,7 @@ export function AddProductForm({ categories }: AddProductFormProps) {
           )}
           noValidate
         >
-          <FetchSuccessAlert />
+          <FetchSuccessAlert warnings={fetchWarnings} />
 
           {saveError ? <FetchErrorAlert message={saveError} /> : null}
 

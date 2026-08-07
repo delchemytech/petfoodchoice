@@ -6,12 +6,13 @@ import { NOT_DELETE } from "../lib/category-filters";
 import { mapCategoryRow } from "../lib/map-category";
 
 export async function deleteCategory(id: string) {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data: category, error: categoryError } = await supabase
     .from("categories")
     .select("id, name")
     .eq("id", id)
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .maybeSingle();
 
@@ -27,6 +28,7 @@ export async function deleteCategory(id: string) {
     .from("categories")
     .update({ delete: true })
     .eq("id", id)
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE);
 
   if (error) {

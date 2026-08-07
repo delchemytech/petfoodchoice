@@ -22,7 +22,6 @@ import { cn } from "@/modules/common/utils";
 import type { AddProductFormValues } from "../../types/add-product";
 import {
   ADD_PRODUCT_STATUSES,
-  AFFILIATE_STORES,
   CURRENCIES,
 } from "../../types/add-product";
 import { ProductImagePreview } from "./product-image-preview";
@@ -70,35 +69,6 @@ export function ProductDetailsFields({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="sourceUrl">Amazon Product URL</Label>
-              <Input
-                id="sourceUrl"
-                type="url"
-                value={values.sourceUrl}
-                readOnly
-                className="bg-muted/50"
-                aria-invalid={Boolean(errors?.sourceUrl)}
-              />
-              <FormMessage message={errors?.sourceUrl} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="affiliateUrl">Affiliate URL (used on shop)</Label>
-              <Input
-                id="affiliateUrl"
-                type="url"
-                value={values.affiliateUrl}
-                onChange={(event) => onChange("affiliateUrl", event.target.value)}
-                className={fieldClassName(Boolean(errors?.affiliateUrl))}
-                aria-invalid={Boolean(errors?.affiliateUrl)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Generated with tag petfoodchoice-21. You can edit this manually if needed.
-              </p>
-              <FormMessage message={errors?.affiliateUrl} />
-            </div>
-
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="name">Product Name</Label>
@@ -112,6 +82,24 @@ export function ProductDetailsFields({
                 <FormMessage message={errors?.name} />
               </div>
 
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="slug">URL Slug</Label>
+                <Input
+                  id="slug"
+                  value={values.slug}
+                  onChange={(event) =>
+                    onChange("slug", event.target.value.toLowerCase())
+                  }
+                  placeholder="product-slug"
+                  aria-invalid={Boolean(errors?.slug)}
+                  className={fieldClassName(Boolean(errors?.slug))}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Storefront URL: /products/{values.slug.trim() || "product-slug"}
+                </p>
+                <FormMessage message={errors?.slug} />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="brand">Brand</Label>
                 <Input
@@ -122,31 +110,6 @@ export function ProductDetailsFields({
                   className={fieldClassName(Boolean(errors?.brand))}
                 />
                 <FormMessage message={errors?.brand} />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Store</Label>
-                <Select
-                  value={values.store}
-                  onValueChange={(value) => {
-                    if (value) onChange("store", value as AddProductFormValues["store"]);
-                  }}
-                >
-                  <SelectTrigger
-                    className={cn("w-full", fieldClassName(Boolean(errors?.store)))}
-                    aria-invalid={Boolean(errors?.store)}
-                  >
-                    <SelectValue placeholder="Select store" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AFFILIATE_STORES.map((store) => (
-                      <SelectItem key={store} value={store}>
-                        {store}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage message={errors?.store} />
               </div>
 
               <div className="space-y-2">
@@ -206,65 +169,211 @@ export function ProductDetailsFields({
 
         <Card>
           <CardHeader>
-            <CardTitle>Pricing & Ratings</CardTitle>
+            <CardTitle>Amazon</CardTitle>
             <CardDescription>
-              Price details and customer ratings from the store.
+              Amazon product and affiliate links shown on the shop.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="amazonSourceUrl">Amazon Product URL</Label>
+              <Input
+                id="amazonSourceUrl"
+                type="url"
+                value={values.amazonSourceUrl}
+                readOnly
+                className="bg-muted/50"
+                aria-invalid={Boolean(errors?.amazonSourceUrl)}
+              />
+              <FormMessage message={errors?.amazonSourceUrl} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="amazonAffiliateUrl">Amazon Affiliate URL</Label>
+              <Input
+                id="amazonAffiliateUrl"
+                type="url"
+                value={values.amazonAffiliateUrl}
+                onChange={(event) =>
+                  onChange("amazonAffiliateUrl", event.target.value)
+                }
+                className={fieldClassName(Boolean(errors?.amazonAffiliateUrl))}
+                aria-invalid={Boolean(errors?.amazonAffiliateUrl)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Generated with tag petfoodchoice-21. Edit manually if needed.
+              </p>
+              <FormMessage message={errors?.amazonAffiliateUrl} />
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="currentPrice">Current Price</Label>
+                <Label htmlFor="amazonCurrentPrice">Amazon Current Price</Label>
                 <Input
-                  id="currentPrice"
+                  id="amazonCurrentPrice"
                   type="number"
                   min="0"
                   step="0.01"
-                  value={values.currentPrice}
+                  value={values.amazonCurrentPrice}
                   onChange={(event) =>
-                    onChange("currentPrice", event.target.value)
+                    onChange("amazonCurrentPrice", event.target.value)
                   }
-                  aria-invalid={Boolean(errors?.currentPrice)}
-                  className={fieldClassName(Boolean(errors?.currentPrice))}
+                  aria-invalid={Boolean(errors?.amazonCurrentPrice)}
+                  className={fieldClassName(Boolean(errors?.amazonCurrentPrice))}
                 />
-                <FormMessage message={errors?.currentPrice} />
+                <FormMessage message={errors?.amazonCurrentPrice} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="originalPrice">Original Price</Label>
+                <Label htmlFor="amazonOriginalPrice">Amazon Original Price</Label>
                 <Input
-                  id="originalPrice"
+                  id="amazonOriginalPrice"
                   type="number"
                   min="0"
                   step="0.01"
-                  value={values.originalPrice}
+                  value={values.amazonOriginalPrice}
                   onChange={(event) =>
-                    onChange("originalPrice", event.target.value)
+                    onChange("amazonOriginalPrice", event.target.value)
                   }
-                  aria-invalid={Boolean(errors?.originalPrice)}
-                  className={fieldClassName(Boolean(errors?.originalPrice))}
+                  aria-invalid={Boolean(errors?.amazonOriginalPrice)}
+                  className={fieldClassName(Boolean(errors?.amazonOriginalPrice))}
                 />
-                <FormMessage message={errors?.originalPrice} />
+                <FormMessage message={errors?.amazonOriginalPrice} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="discountPercentage">Discount Percentage</Label>
+                <Label htmlFor="amazonDiscountPercentage">
+                  Amazon Discount %
+                </Label>
                 <Input
-                  id="discountPercentage"
+                  id="amazonDiscountPercentage"
                   type="number"
                   min="0"
                   max="100"
                   step="1"
-                  value={values.discountPercentage}
+                  value={values.amazonDiscountPercentage}
                   onChange={(event) =>
-                    onChange("discountPercentage", event.target.value)
+                    onChange("amazonDiscountPercentage", event.target.value)
                   }
-                  aria-invalid={Boolean(errors?.discountPercentage)}
-                  className={fieldClassName(Boolean(errors?.discountPercentage))}
+                  aria-invalid={Boolean(errors?.amazonDiscountPercentage)}
+                  className={fieldClassName(
+                    Boolean(errors?.amazonDiscountPercentage),
+                  )}
                 />
-                <FormMessage message={errors?.discountPercentage} />
+                <FormMessage message={errors?.amazonDiscountPercentage} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Flipkart</CardTitle>
+            <CardDescription>
+              Flipkart listing for price comparison and the Buy from Flipkart
+              button.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="flipkartSourceUrl">Flipkart Product URL</Label>
+              <Input
+                id="flipkartSourceUrl"
+                type="url"
+                value={values.flipkartSourceUrl}
+                onChange={(event) =>
+                  onChange("flipkartSourceUrl", event.target.value)
+                }
+                className={fieldClassName(Boolean(errors?.flipkartSourceUrl))}
+                aria-invalid={Boolean(errors?.flipkartSourceUrl)}
+              />
+              <FormMessage message={errors?.flipkartSourceUrl} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="flipkartAffiliateUrl">Flipkart Affiliate URL</Label>
+              <Input
+                id="flipkartAffiliateUrl"
+                type="url"
+                value={values.flipkartAffiliateUrl}
+                onChange={(event) =>
+                  onChange("flipkartAffiliateUrl", event.target.value)
+                }
+                className={fieldClassName(Boolean(errors?.flipkartAffiliateUrl))}
+                aria-invalid={Boolean(errors?.flipkartAffiliateUrl)}
+              />
+              <FormMessage message={errors?.flipkartAffiliateUrl} />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="flipkartCurrentPrice">Flipkart Current Price</Label>
+                <Input
+                  id="flipkartCurrentPrice"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={values.flipkartCurrentPrice}
+                  onChange={(event) =>
+                    onChange("flipkartCurrentPrice", event.target.value)
+                  }
+                  aria-invalid={Boolean(errors?.flipkartCurrentPrice)}
+                  className={fieldClassName(Boolean(errors?.flipkartCurrentPrice))}
+                />
+                <FormMessage message={errors?.flipkartCurrentPrice} />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="flipkartOriginalPrice">Flipkart Original Price</Label>
+                <Input
+                  id="flipkartOriginalPrice"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={values.flipkartOriginalPrice}
+                  onChange={(event) =>
+                    onChange("flipkartOriginalPrice", event.target.value)
+                  }
+                  aria-invalid={Boolean(errors?.flipkartOriginalPrice)}
+                  className={fieldClassName(Boolean(errors?.flipkartOriginalPrice))}
+                />
+                <FormMessage message={errors?.flipkartOriginalPrice} />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="flipkartDiscountPercentage">
+                  Flipkart Discount %
+                </Label>
+                <Input
+                  id="flipkartDiscountPercentage"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={values.flipkartDiscountPercentage}
+                  onChange={(event) =>
+                    onChange("flipkartDiscountPercentage", event.target.value)
+                  }
+                  aria-invalid={Boolean(errors?.flipkartDiscountPercentage)}
+                  className={fieldClassName(
+                    Boolean(errors?.flipkartDiscountPercentage),
+                  )}
+                />
+                <FormMessage message={errors?.flipkartDiscountPercentage} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Ratings & Currency</CardTitle>
+            <CardDescription>
+              Shared ratings from Amazon or Flipkart fetch and currency for all prices.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Currency</Label>
                 <Select

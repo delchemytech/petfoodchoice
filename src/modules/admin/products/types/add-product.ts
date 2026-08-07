@@ -1,25 +1,22 @@
 export type AddProductStatus = "active" | "inactive";
 
-export type AffiliateStore =
-  | "Amazon"
-  | "Flipkart"
-  | "Myntra"
-  | "Ajio"
-  | "Meesho"
-  | "Nykaa";
-
 export interface AddProductFormValues {
-  sourceUrl: string;
-  affiliateUrl: string;
+  amazonSourceUrl: string;
+  amazonAffiliateUrl: string;
+  amazonCurrentPrice: string;
+  amazonOriginalPrice: string;
+  amazonDiscountPercentage: string;
+  flipkartSourceUrl: string;
+  flipkartAffiliateUrl: string;
+  flipkartCurrentPrice: string;
+  flipkartOriginalPrice: string;
+  flipkartDiscountPercentage: string;
   imageUrl: string;
   imageUrls: string[];
   name: string;
+  slug: string;
   brand: string;
-  store: AffiliateStore;
   category: string;
-  currentPrice: string;
-  originalPrice: string;
-  discountPercentage: string;
   currency: string;
   rating: string;
   totalReviews: string;
@@ -28,15 +25,6 @@ export interface AddProductFormValues {
 }
 
 export type FetchProductStatus = "idle" | "loading" | "success" | "error";
-
-export const AFFILIATE_STORES: AffiliateStore[] = [
-  "Amazon",
-  "Flipkart",
-  "Myntra",
-  "Ajio",
-  "Meesho",
-  "Nykaa",
-];
 
 export const ADD_PRODUCT_CATEGORIES = [
   "Electronics",

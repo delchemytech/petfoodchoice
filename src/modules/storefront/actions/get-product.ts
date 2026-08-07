@@ -2,6 +2,7 @@
 
 import { requireAdmin } from "@/modules/auth/lib/require-admin";
 import { createSupabaseAnonServerClient } from "@/modules/common/lib/supabase/server";
+import { getCurrentWebsiteId } from "@/modules/common/lib/website/get-current-website-id";
 import { NOT_DELETE } from "@/modules/admin/products/lib/product-filters";
 import { mapStorefrontProduct } from "../lib/map-product";
 import type { StorefrontProduct } from "../types";
@@ -12,15 +13,21 @@ export interface StorefrontProductPreview {
   status: ProductStatus;
 }
 
-export async function getStorefrontProductById(
-  id: string,
+export async function getStorefrontProductBySlug(
+  slug: string,
 ): Promise<StorefrontProduct | null> {
+  const websiteId = await getCurrentWebsiteId();
+  if (!websiteId) {
+    return null;
+  }
+
   const supabase = createSupabaseAnonServerClient();
 
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .eq("id", id)
+    .eq("slug", slug)
+    .eq("website_id", websiteId)
     .eq("status", "active")
     .eq("delete", NOT_DELETE)
     .maybeSingle();
@@ -32,15 +39,16 @@ export async function getStorefrontProductById(
   return data ? mapStorefrontProduct(data) : null;
 }
 
-export async function getStorefrontProductPreviewById(
-  id: string,
+export async function getStorefrontProductPreviewBySlug(
+  slug: string,
 ): Promise<StorefrontProductPreview | null> {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .eq("id", id)
+    .eq("slug", slug)
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .maybeSingle();
 

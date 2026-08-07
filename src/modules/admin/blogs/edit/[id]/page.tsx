@@ -20,5 +20,5 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
     notFound();
   }
 
-  return <BlogForm mode="edit" blog={blog} categories={categories} />;
+  return <BlogForm formMode="edit" blog={blog} categories={categories} />;
 }

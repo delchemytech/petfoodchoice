@@ -1,34 +1,47 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/modules/common/lib/supabase/middleware";
 
-function getSafeNextPath(pathname: string) {
-  if (pathname.startsWith("/admin")) {
-    return pathname;
+function getSafeNextPath(path: string | null) {
+  if (path?.startsWith("/admin")) {
+    return path;
   }
 
   return "/admin/dashboard";
+}
+
+function redirectToLogin(request: NextRequest, nextPath: string) {
+  const loginUrl = request.nextUrl.clone();
+  loginUrl.pathname = "/login";
+  loginUrl.searchParams.set("next", nextPath);
+  return NextResponse.redirect(loginUrl);
 }
 
 export async function proxy(request: NextRequest) {
   const { user, supabaseResponse } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin") && !user) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.searchParams.set("next", getSafeNextPath(pathname));
-    return NextResponse.redirect(loginUrl);
+  // Public routes: /, /products/*, /blogs/*, /login, etc.
+  if (!pathname.startsWith("/admin")) {
+    if (pathname === "/login" && user) {
+      const next = request.nextUrl.searchParams.get("next");
+      return NextResponse.redirect(
+        new URL(getSafeNextPath(next), request.url),
+      );
+    }
+
+    return supabaseResponse;
   }
 
-  if (pathname === "/login" && user) {
-    const next = request.nextUrl.searchParams.get("next");
-    const destination = getSafeNextPath(next ?? "/admin/dashboard");
-    return NextResponse.redirect(new URL(destination, request.url));
+  // Protected: /admin and /admin/*
+  if (!user) {
+    return redirectToLogin(request, getSafeNextPath(pathname));
   }
 
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };

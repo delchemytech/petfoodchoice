@@ -6,5 +6,5 @@ export const dynamic = "force-dynamic";
 export default async function AddBlogPage() {
   const categories = await getBlogCategories();
 
-  return <BlogForm mode="create" categories={categories} />;
+  return <BlogForm formMode="create" categories={categories} />;
 }

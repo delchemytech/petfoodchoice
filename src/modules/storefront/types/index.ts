@@ -1,11 +1,18 @@
 export interface StorefrontProduct {
   id: string;
-  affiliateUrl: string;
+  amazonAffiliateUrl: string;
+  amazonCurrentPrice: number | null;
+  amazonOriginalPrice: number | null;
+  amazonDiscountPercentage: number | null;
+  flipkartAffiliateUrl: string;
+  flipkartCurrentPrice: number | null;
+  flipkartOriginalPrice: number | null;
+  flipkartDiscountPercentage: number | null;
   imageUrl: string;
   imageUrls: string[];
   name: string;
+  slug: string;
   brand: string;
-  store: string;
   category: string;
   currentPrice: number;
   originalPrice: number | null;

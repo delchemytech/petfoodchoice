@@ -12,7 +12,7 @@ export function FetchLoadingState() {
         <div className="space-y-1 text-center">
           <p className="font-medium">Fetching product details...</p>
           <p className="text-sm text-muted-foreground">
-            Retrieving information from the affiliate link
+            Retrieving Amazon and Flipkart prices when links are provided
           </p>
         </div>
       </CardContent>
