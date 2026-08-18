@@ -1,6 +1,8 @@
 export type ProductStatus = "active" | "inactive";
 
-export interface Product {
+import type { ProductAttributes } from "@/modules/common/types/product-attributes";
+
+export interface Product extends ProductAttributes {
   id: string;
   amazonSourceUrl: string;
   amazonAffiliateUrl: string;

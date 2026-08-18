@@ -3,6 +3,7 @@ import {
   FolderOpen,
   LayoutDashboard,
   Package,
+  PackageSearch,
   Tags,
   type LucideIcon,
 } from "lucide-react";
@@ -23,6 +24,11 @@ export const adminNavItems: AdminNavItem[] = [
     title: "Products",
     href: "/admin/products",
     icon: Package,
+  },
+  {
+    title: "Bulk Fetch",
+    href: "/admin/bulk-fetch",
+    icon: PackageSearch,
   },
   {
     title: "Categories",
@@ -53,6 +59,7 @@ export function getAdminPageTitle(pathname: string): string {
   if (pathname.startsWith("/admin/products/add")) return "Add Product";
   if (pathname.startsWith("/admin/products/edit")) return "Edit Product";
   if (pathname.startsWith("/admin/products")) return "Products";
+  if (pathname.startsWith("/admin/bulk-fetch")) return "Bulk Fetch";
   if (pathname.startsWith("/admin/categories")) return "Categories";
   if (pathname.startsWith("/admin/blogs/add")) return "New Blog";
   if (pathname.startsWith("/admin/blogs/edit")) return "Edit Blog";

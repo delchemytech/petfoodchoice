@@ -22,6 +22,14 @@ export interface AddProductFormValues {
   totalReviews: string;
   shortDescription: string;
   status: AddProductStatus;
+  petType: string;
+  lifeStage: string;
+  breedSize: string;
+  foodType: string;
+  flavor: string;
+  packWeight: string;
+  packWeightUnit: string;
+  packCount: string;
 }
 
 export type FetchProductStatus = "idle" | "loading" | "success" | "error";

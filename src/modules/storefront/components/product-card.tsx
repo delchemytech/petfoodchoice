@@ -2,18 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { formatPrice, formatSavings } from "../lib/format-price";
-import {
-  hasAmazonOffer,
-  hasFlipkartOffer,
-} from "../lib/store-offers";
+import { getProductBadgeLabel } from "../lib/store-offers";
 import type { StorefrontProduct } from "../types";
-
-function getStoreLabel(product: StorefrontProduct) {
-  const stores = [];
-  if (hasAmazonOffer(product)) stores.push("Amazon");
-  if (hasFlipkartOffer(product)) stores.push("Flipkart");
-  return stores.join(" · ") || "Store";
-}
 
 interface ProductCardProps {
   product: StorefrontProduct;
@@ -56,16 +46,22 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           ) : null}
 
           <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-foreground uppercase backdrop-blur">
-            {getStoreLabel(product)} · {product.category}
+            {getProductBadgeLabel(product)}
           </span>
         </div>
 
         <div className="flex flex-1 flex-col gap-3 p-4">
           <div className="flex items-center justify-between gap-2 text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-            <span className="truncate">{product.brand || getStoreLabel(product)}</span>
-            <span className="shrink-0 rounded-full border border-border px-2 py-0.5">
-              {product.category}
-            </span>
+            <span className="truncate">{product.brand || product.category}</span>
+            {product.petType ? (
+              <span className="shrink-0 rounded-full border border-border px-2 py-0.5">
+                {product.petType}
+              </span>
+            ) : (
+              <span className="shrink-0 rounded-full border border-border px-2 py-0.5">
+                {product.category}
+              </span>
+            )}
           </div>
 
           <h3 className="line-clamp-2 min-h-[2.75rem] font-heading text-lg leading-snug font-semibold">
@@ -100,7 +96,9 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
               <p className="text-sm font-medium text-primary">
                 You save {savings}
               </p>
-            ) : null}
+            ) : (
+              <p className="text-sm text-muted-foreground">In stock</p>
+            )}
           </div>
         </div>
       </article>

@@ -205,10 +205,26 @@ export function createProductFormSchema(allowedCategories: string[]) {
       }),
       totalReviews: optionalNumberField({
         min: 0,
+        max: 2_147_483_647,
         integer: true,
         label: "review count",
       }),
       shortDescription: z.string(),
+      petType: z.string(),
+      lifeStage: z.string(),
+      breedSize: z.string(),
+      foodType: z.string(),
+      flavor: z.string().max(80, "Flavor must be 80 characters or less."),
+      packWeight: optionalNumberField({
+        min: 0,
+        label: "pack weight",
+      }),
+      packWeightUnit: z.string().max(10),
+      packCount: optionalNumberField({
+        min: 1,
+        integer: true,
+        label: "pack count",
+      }),
       status: z.enum(ADD_PRODUCT_STATUSES, {
         message: "Select a status.",
       }),

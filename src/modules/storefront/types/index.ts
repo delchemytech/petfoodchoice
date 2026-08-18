@@ -1,4 +1,6 @@
-export interface StorefrontProduct {
+import type { ProductAttributes } from "@/modules/common/types/product-attributes";
+
+export interface StorefrontProduct extends ProductAttributes {
   id: string;
   amazonAffiliateUrl: string;
   amazonCurrentPrice: number | null;

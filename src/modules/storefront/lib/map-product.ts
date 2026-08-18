@@ -1,4 +1,5 @@
 import type { ProductRow } from "@/modules/common/types/database";
+import { mapProductAttributesFromRow } from "@/modules/common/types/product-attributes";
 import { getDisplayImageUrls } from "@/modules/common/lib/product-images";
 import type { StorefrontProduct } from "../types";
 import { getListingDiscount, getListingPrice } from "./store-offers";
@@ -60,6 +61,7 @@ export function mapStorefrontProduct(row: ProductRow): StorefrontProduct {
     totalReviews:
       row.total_reviews !== null ? Number(row.total_reviews) : null,
     shortDescription: row.short_description ?? "",
+    ...mapProductAttributesFromRow(row),
   };
 
   const listing = getListingPrice(product);

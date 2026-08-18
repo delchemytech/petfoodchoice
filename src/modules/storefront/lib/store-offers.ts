@@ -34,6 +34,21 @@ export function getListingPrice(product: StorefrontProduct) {
   return { currentPrice, originalPrice };
 }
 
+export function getPrimaryBuyUrl(product: StorefrontProduct): string | null {
+  if (product.amazonAffiliateUrl.trim()) {
+    return product.amazonAffiliateUrl.trim();
+  }
+  if (product.flipkartAffiliateUrl.trim()) {
+    return product.flipkartAffiliateUrl.trim();
+  }
+  return null;
+}
+
+export function getProductBadgeLabel(product: StorefrontProduct): string {
+  const parts = [product.brand, product.category].filter(Boolean);
+  return parts.join(" · ") || product.category || "Pet essentials";
+}
+
 export function hasAmazonOffer(product: StorefrontProduct) {
   return Boolean(product.amazonAffiliateUrl.trim());
 }

@@ -1,30 +1,33 @@
-import { Leaf, Shield, Stethoscope, Truck } from "lucide-react";
+import { Heart, Leaf, Shield, Truck } from "lucide-react";
 
 const features = [
   {
-    icon: Stethoscope,
-    title: "Curated with care",
-    description: "Every product is reviewed for value, ratings, and seller trust.",
+    icon: Heart,
+    title: "Made for pets",
+    description:
+      "Food, treats, and essentials chosen for nutrition, taste, and everyday use.",
     number: "01",
   },
   {
     icon: Leaf,
-    title: "Transparent pricing",
-    description: "We show current price, original price, and savings upfront.",
+    title: "Clear pricing",
+    description:
+      "See the price upfront with savings highlighted when items are on offer.",
     number: "02",
   },
   {
     icon: Shield,
-    title: "No paid placements",
-    description: "We earn only when you buy through our affiliate links.",
+    title: "Trusted brands",
+    description:
+      "We stock familiar names pet parents already know and recommend.",
     number: "03",
   },
 ];
 
 const badges = [
-  { icon: Truck, label: "Ships from trusted stores" },
-  { icon: Shield, label: "Independent, reader-funded" },
-  { icon: Leaf, label: "Updated picks weekly" },
+  { icon: Truck, label: "Fast dispatch" },
+  { icon: Shield, label: "Secure checkout" },
+  { icon: Leaf, label: "Fresh arrivals weekly" },
 ];
 
 export function TrustSection() {
@@ -32,14 +35,14 @@ export function TrustSection() {
     <section id="trust" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
       <div className="max-w-2xl space-y-3">
         <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-          Quality first, hype{" "}
+          A pet store built for{" "}
           <span className="text-primary underline decoration-primary/30 decoration-wavy underline-offset-4">
-            never.
+            real routines.
           </span>
         </h2>
         <p className="text-muted-foreground">
-          We focus on products that deliver real value — not whatever pays the
-          highest commission.
+          From puppy kibble to senior formulas, find the right products without
+          the clutter of a marketplace search.
         </p>
       </div>
 

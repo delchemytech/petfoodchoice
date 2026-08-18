@@ -3,8 +3,8 @@ import { sortCategoryNames } from "@/modules/common/lib/category-match";
 import { getStorefrontCategories } from "../actions/get-categories";
 
 const companyLinks = [
-  { label: "About", href: "/#trust" },
-  { label: "Affiliate disclosure", href: "/#trust" },
+  { label: "About us", href: "/#trust" },
+  { label: "Customer care", href: "mailto:hello@petfoodchoice.com" },
   { label: "Contact", href: "mailto:hello@petfoodchoice.com" },
 ];
 
@@ -26,8 +26,8 @@ export async function SiteFooter() {
             PET<span className="text-primary">FOODCHOICE</span>
           </p>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Curated pet food, treats, and essentials. We compare prices and link
-            you to the best deals for your pets.
+            Your online pet store for food, treats, and everyday essentials —
+            curated for dogs, cats, and more.
           </p>
         </div>
 
@@ -65,8 +65,7 @@ export async function SiteFooter() {
       </div>
 
       <div className="border-t border-border/60 px-4 py-5 text-center text-xs text-muted-foreground sm:px-6">
-        © {new Date().getFullYear()} PETFOODCHOICE. As an Amazon Associate we
-        may earn from qualifying purchases.
+        © {new Date().getFullYear()} PETFOODCHOICE. All rights reserved.
       </div>
     </footer>
   );

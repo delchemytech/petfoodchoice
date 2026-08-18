@@ -1,5 +1,6 @@
 const MAX_FIELD_LENGTH = 2000;
 const MAX_URL_LENGTH = 2048;
+export const PG_INTEGER_MAX = 2_147_483_647;
 
 export function sanitizeText(
   value: string | null | undefined,
@@ -54,4 +55,16 @@ export function calculateDiscount(
   }
 
   return String(Math.round(((original - current) / original) * 100));
+}
+
+export function parseReviewCount(value: string): string {
+  const match = value.replace(/,/g, "").match(/(\d+)/);
+  if (!match) return "";
+
+  const parsed = Number.parseInt(match[1], 10);
+  if (Number.isNaN(parsed) || parsed < 0 || parsed > PG_INTEGER_MAX) {
+    return "";
+  }
+
+  return String(parsed);
 }

@@ -7,10 +7,15 @@ import type { AddProductFormValues } from "../../types/add-product";
 import {
   calculateDiscount,
   parsePriceNumber,
+  parseReviewCount,
   sanitizeText,
   sanitizeUrl,
 } from "./sanitize";
 import { getCurrencyFromHostname } from "./validate-url";
+import {
+  parseAmazonProductAttributes,
+  productAttributesToFormFields,
+} from "./parse-product-attributes";
 
 const MAX_IMAGES = MAX_PRODUCT_IMAGES;
 
@@ -126,8 +131,7 @@ function extractRating($: cheerio.CheerioAPI): string {
 
 function extractReviewCount($: cheerio.CheerioAPI): string {
   const reviewText = $("#acrCustomerReviewText").text();
-  const match = reviewText.replace(/,/g, "").match(/(\d+)/);
-  return match?.[1] ?? "";
+  return parseReviewCount(reviewText);
 }
 
 function extractBrand($: cheerio.CheerioAPI): string {
@@ -151,6 +155,14 @@ function extractCategory($: cheerio.CheerioAPI): string {
   }
 
   return "";
+}
+
+function extractBreadcrumbs($: cheerio.CheerioAPI): string {
+  return $("#wayfinding-breadcrumbs_container li, #wayfinding-breadcrumbs_feature_div li")
+    .map((_, element) => sanitizeText($(element).text()))
+    .get()
+    .filter(Boolean)
+    .join(" > ");
 }
 
 function extractDescription($: cheerio.CheerioAPI): string {
@@ -179,6 +191,13 @@ export function parseAmazonHtml(
 
   const imageUrls = extractImageUrls($);
   const name = sanitizeText($("#productTitle").text());
+  const shortDescription = extractDescription($);
+  const attributes = parseAmazonProductAttributes({
+    title: name,
+    description: shortDescription,
+    breadcrumbs: extractBreadcrumbs($),
+    $,
+  });
 
   return {
     amazonSourceUrl: sanitizeUrl(sourceUrl) || sanitizeUrl(finalUrl),
@@ -200,7 +219,8 @@ export function parseAmazonHtml(
     currency: getCurrencyFromHostname(finalHostname),
     rating: extractRating($),
     totalReviews: extractReviewCount($),
-    shortDescription: extractDescription($),
+    shortDescription,
     status: "active",
+    ...productAttributesToFormFields(attributes),
   };
 }

@@ -1,8 +1,9 @@
 import type { ProductRow, ProductInsert } from "@/modules/common/types/database";
+import { mapProductAttributesFromRow, mapFormValuesToProductAttributes, mapProductAttributesToInsert } from "@/modules/common/types/product-attributes";
 import { toProductImagePayload } from "@/modules/common/lib/product-images";
 import { tryResolveAmazonProductUrls } from "./amazon-affiliate";
 import { tryResolveFlipkartProductUrls } from "./flipkart-affiliate";
-import { calculateDiscount } from "./scrape/sanitize";
+import { calculateDiscount, PG_INTEGER_MAX } from "./scrape/sanitize";
 import type { AddProductFormValues } from "../types/add-product";
 import type { Product } from "../types";
 
@@ -55,6 +56,7 @@ export function mapProductRow(row: ProductRow): Product {
     totalReviews:
       row.total_reviews !== null ? Number(row.total_reviews) : null,
     shortDescription: row.short_description ?? "",
+    ...mapProductAttributesFromRow(row),
     status: row.status,
     delete: row.delete,
     createdAt: row.created_at,
@@ -154,6 +156,7 @@ export function mapFormToInsert(values: AddProductFormValues): ProductInsert {
     rating: parseNumber(values.rating),
     total_reviews: parseInteger(values.totalReviews),
     short_description: values.shortDescription.trim() || null,
+    ...mapProductAttributesToInsert(mapFormValuesToProductAttributes(values)),
     status: values.status,
     delete: false,
   };
@@ -200,6 +203,16 @@ export function mapProductToFormValues(
       product.totalReviews !== null ? String(product.totalReviews) : "",
     shortDescription: product.shortDescription,
     status: product.status,
+    petType: product.petType ?? "",
+    lifeStage: product.lifeStage ?? "",
+    breedSize: product.breedSize ?? "",
+    foodType: product.foodType ?? "",
+    flavor: product.flavor ?? "",
+    packWeight:
+      product.packWeight !== null ? String(product.packWeight) : "",
+    packWeightUnit: product.packWeightUnit ?? "",
+    packCount:
+      product.packCount !== null ? String(product.packCount) : "",
   };
 }
 
@@ -212,5 +225,8 @@ function parseNumber(value: string): number | null {
 function parseInteger(value: string): number | null {
   if (!value.trim()) return null;
   const parsed = Number.parseInt(value, 10);
-  return Number.isNaN(parsed) ? null : parsed;
+  if (Number.isNaN(parsed) || parsed < 0 || parsed > PG_INTEGER_MAX) {
+    return null;
+  }
+  return parsed;
 }

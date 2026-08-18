@@ -25,6 +25,7 @@ import {
   CURRENCIES,
 } from "../../types/add-product";
 import { ProductImagePreview } from "./product-image-preview";
+import { PetFoodAttributeFields } from "./pet-food-attribute-fields";
 
 interface ProductDetailsFieldsProps {
   values: AddProductFormValues;
@@ -166,6 +167,12 @@ export function ProductDetailsFields({
             </div>
           </CardContent>
         </Card>
+
+        <PetFoodAttributeFields
+          values={values}
+          errors={errors}
+          onChange={onChange}
+        />
 
         <Card>
           <CardHeader>

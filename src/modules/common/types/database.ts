@@ -1,6 +1,11 @@
 export type ProductStatus = "active" | "inactive";
 export type UserRole = "admin" | "user";
 
+export type {
+  ProductAttributes,
+  ProductAttributeRow,
+} from "./product-attributes";
+
 export interface AdminUserRow extends Record<string, unknown> {
   id: string;
   email: string;
@@ -55,6 +60,14 @@ export interface ProductRow extends Record<string, unknown> {
   rating: number | null;
   total_reviews: number | null;
   short_description: string | null;
+  pet_type: string | null;
+  life_stage: string | null;
+  breed_size: string | null;
+  food_type: string | null;
+  flavor: string | null;
+  pack_weight: number | null;
+  pack_weight_unit: string | null;
+  pack_count: number | null;
   status: ProductStatus;
   delete: boolean;
   created_at: string;
@@ -84,6 +97,14 @@ export interface ProductInsert extends Record<string, unknown> {
   rating?: number | null;
   total_reviews?: number | null;
   short_description?: string | null;
+  pet_type?: string | null;
+  life_stage?: string | null;
+  breed_size?: string | null;
+  food_type?: string | null;
+  flavor?: string | null;
+  pack_weight?: number | null;
+  pack_weight_unit?: string | null;
+  pack_count?: number | null;
   status?: ProductStatus;
   delete?: boolean;
   created_at?: string;
@@ -113,6 +134,14 @@ export interface ProductUpdate extends Record<string, unknown> {
   rating?: number | null;
   total_reviews?: number | null;
   short_description?: string | null;
+  pet_type?: string | null;
+  life_stage?: string | null;
+  breed_size?: string | null;
+  food_type?: string | null;
+  flavor?: string | null;
+  pack_weight?: number | null;
+  pack_weight_unit?: string | null;
+  pack_count?: number | null;
   status?: ProductStatus;
   delete?: boolean;
   created_at?: string;

@@ -5,18 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/modules/common/utils";
 import { formatPrice } from "../lib/format-price";
-import {
-  hasAmazonOffer,
-  hasFlipkartOffer,
-} from "../lib/store-offers";
+import { getProductBadgeLabel } from "../lib/store-offers";
 import type { StorefrontProduct } from "../types";
-
-function getStoreLabel(product: StorefrontProduct) {
-  const stores = [];
-  if (hasAmazonOffer(product)) stores.push("Amazon");
-  if (hasFlipkartOffer(product)) stores.push("Flipkart");
-  return stores.join(" · ") || "Store";
-}
 
 const SLIDE_INTERVAL_MS = 4500;
 
@@ -28,13 +18,13 @@ function HeroSliderFallback() {
   return (
     <div className="flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-[2rem] border border-border/70 bg-gradient-to-br from-amber-50 via-background to-primary/10 p-8 shadow-xl">
       <p className="font-heading text-3xl font-semibold leading-tight text-foreground">
-        Deals worth
+        Fresh picks for
         <br />
-        <span className="text-primary">your cart.</span>
+        <span className="text-primary">happy pets.</span>
       </p>
       <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-        Hand-picked affiliate products with transparent pricing and direct links
-        to trusted stores.
+        Browse top-rated food, treats, and care essentials curated for every
+        pet and life stage.
       </p>
     </div>
   );
@@ -109,7 +99,7 @@ export function HeroProductSlider({ products }: HeroProductSliderProps) {
 
             <div className="absolute inset-x-0 bottom-0 space-y-2 p-8 text-white">
               <p className="text-xs font-semibold tracking-[0.18em] text-white/75 uppercase">
-                {getStoreLabel(product)} · {product.category}
+                {getProductBadgeLabel(product)}
               </p>
               <h3 className="font-heading line-clamp-2 text-2xl leading-tight font-semibold">
                 {product.name}
@@ -123,7 +113,7 @@ export function HeroProductSlider({ products }: HeroProductSliderProps) {
       })}
 
       <div className="pointer-events-none absolute top-5 right-5 z-20 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[11px] font-semibold tracking-[0.16em] text-white uppercase backdrop-blur">
-        New picks
+        Featured
       </div>
 
       {products.length > 1 ? (
