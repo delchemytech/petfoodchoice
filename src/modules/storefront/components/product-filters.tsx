@@ -141,70 +141,80 @@ export function ProductFilters({
         </div>
       </FilterSection>
 
-      <FilterSection title="Pet Type">
-        <CheckboxFilterList
-          options={petTypes}
-          selected={filters.petTypes}
-          onToggle={(name) =>
-            onChange({
-              ...filters,
-              petTypes: toggleValue(filters.petTypes, name),
-            })
-          }
-        />
-      </FilterSection>
+      {petTypes.length > 0 ? (
+        <FilterSection title="Pet Type">
+          <CheckboxFilterList
+            options={petTypes}
+            selected={filters.petTypes}
+            onToggle={(name) =>
+              onChange({
+                ...filters,
+                petTypes: toggleValue(filters.petTypes, name),
+              })
+            }
+          />
+        </FilterSection>
+      ) : null}
 
-      <FilterSection title="Life Stage">
-        <CheckboxFilterList
-          options={lifeStages}
-          selected={filters.lifeStages}
-          onToggle={(name) =>
-            onChange({
-              ...filters,
-              lifeStages: toggleValue(filters.lifeStages, name),
-            })
-          }
-        />
-      </FilterSection>
+      {lifeStages.length > 0 ? (
+        <FilterSection title="Life Stage">
+          <CheckboxFilterList
+            options={lifeStages}
+            selected={filters.lifeStages}
+            onToggle={(name) =>
+              onChange({
+                ...filters,
+                lifeStages: toggleValue(filters.lifeStages, name),
+              })
+            }
+          />
+        </FilterSection>
+      ) : null}
 
-      <FilterSection title="Breed Size">
-        <CheckboxFilterList
-          options={breedSizes}
-          selected={filters.breedSizes}
-          onToggle={(name) =>
-            onChange({
-              ...filters,
-              breedSizes: toggleValue(filters.breedSizes, name),
-            })
-          }
-        />
-      </FilterSection>
+      {breedSizes.length > 0 ? (
+        <FilterSection title="Breed Size">
+          <CheckboxFilterList
+            options={breedSizes}
+            selected={filters.breedSizes}
+            onToggle={(name) =>
+              onChange({
+                ...filters,
+                breedSizes: toggleValue(filters.breedSizes, name),
+              })
+            }
+          />
+        </FilterSection>
+      ) : null}
 
-      <FilterSection title="Food Type">
-        <CheckboxFilterList
-          options={foodTypes}
-          selected={filters.foodTypes}
-          onToggle={(name) =>
-            onChange({
-              ...filters,
-              foodTypes: toggleValue(filters.foodTypes, name),
-            })
-          }
-        />
-      </FilterSection>
+      {foodTypes.length > 0 ? (
+        <FilterSection title="Food Type">
+          <CheckboxFilterList
+            options={foodTypes}
+            selected={filters.foodTypes}
+            onToggle={(name) =>
+              onChange({
+                ...filters,
+                foodTypes: toggleValue(filters.foodTypes, name),
+              })
+            }
+          />
+        </FilterSection>
+      ) : null}
 
-      <FilterSection title="Flavor">
-        <CheckboxFilterList
-          options={flavors}
-          selected={filters.flavors}
-          onToggle={(name) =>
-            onChange({
-              ...filters,
-              flavors: toggleValue(filters.flavors, name),
-            })
-          }
-        />
-      </FilterSection>
+      {flavors.length > 0 ? (
+        <FilterSection title="Flavor">
+          <CheckboxFilterList
+            options={flavors}
+            selected={filters.flavors}
+            onToggle={(name) =>
+              onChange({
+                ...filters,
+                flavors: toggleValue(filters.flavors, name),
+              })
+            }
+          />
+        </FilterSection>
+      ) : null}
 
       {brands.length > 0 ? (
         <FilterSection title="Brand">

@@ -26,6 +26,7 @@ function HeaderSearchForm({ className }: { className?: string }) {
     } else {
       params.delete("q");
     }
+    params.delete("page");
 
     const queryString = params.toString();
     const target =

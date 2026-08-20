@@ -1,25 +1,53 @@
 import { getStorefrontCategories } from "./actions/get-categories";
+import {
+  getStorefrontFilterFacets,
+  getStorefrontProductsFiltered,
+} from "./actions/get-catalog";
 import { getStorefrontProducts } from "./actions/get-products";
 import { HeroSection } from "./components/hero-section";
 import { ProductCatalog } from "./components/product-catalog";
 import { TrustSection } from "./components/trust-section";
 import { ValueTicker } from "./components/value-ticker";
+import {
+  parseCatalogFilters,
+  parseCatalogPage,
+} from "./lib/catalog-search-params";
 
 const HERO_PRODUCTS_LIMIT = 7;
 
-export default async function StorefrontPage() {
-  const [products, categories] = await Promise.all([
-    getStorefrontProducts(),
+interface StorefrontPageProps {
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
+export default async function StorefrontPage({
+  searchParams = {},
+}: StorefrontPageProps) {
+  const filters = parseCatalogFilters(searchParams);
+  const page = parseCatalogPage(searchParams);
+
+  const [heroProducts, categories] = await Promise.all([
+    getStorefrontProducts(HERO_PRODUCTS_LIMIT),
     getStorefrontCategories(),
+  ]);
+
+  const categoryNames = categories.map((category) => category.name);
+
+  const [catalog, facets] = await Promise.all([
+    getStorefrontProductsFiltered(filters, categoryNames, page),
+    getStorefrontFilterFacets(filters, categoryNames),
   ]);
 
   return (
     <>
-      <HeroSection products={products.slice(0, HERO_PRODUCTS_LIMIT)} />
+      <HeroSection products={heroProducts} />
       <ValueTicker />
       <ProductCatalog
-        products={products}
-        categories={categories.map((category) => category.name)}
+        products={catalog.products}
+        total={catalog.total}
+        page={catalog.page}
+        totalPages={catalog.totalPages}
+        categories={categoryNames}
+        facets={facets}
       />
       <TrustSection />
     </>

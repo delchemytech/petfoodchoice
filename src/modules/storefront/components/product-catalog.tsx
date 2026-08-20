@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
 import { sortCategoryNames } from "@/modules/common/lib/category-match";
 import { Button } from "@/modules/common/ui/button";
@@ -19,93 +19,82 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/modules/common/ui/sheet";
+import type { CatalogFacets } from "../lib/catalog-facets";
+import {
+  catalogHref,
+  CATALOG_PAGE_SIZE,
+  parseCatalogFilters,
+} from "../lib/catalog-search-params";
 import {
   countActiveFilters,
   DEFAULT_PRODUCT_FILTERS,
-  filterProducts,
-  getBrandOptions,
-  getBreedSizeFilterOptions,
-  getFlavorFilterOptions,
-  getFoodTypeFilterOptions,
-  getLifeStageFilterOptions,
-  getPackWeightBounds,
-  getPetTypeFilterOptions,
-  getPriceBounds,
   PRODUCT_SORT_OPTIONS,
   type ProductFilterState,
 } from "../lib/filter-products";
 import type { StorefrontProduct } from "../types";
+import { ActiveFilterChips } from "./active-filter-chips";
 import { ProductFilters } from "./product-filters";
 import { ProductGrid } from "./product-grid";
 
 interface ProductCatalogProps {
   products: StorefrontProduct[];
+  total: number;
+  page: number;
+  totalPages: number;
   categories: string[];
+  facets: CatalogFacets;
 }
 
-function ProductCatalogContent({ products, categories }: ProductCatalogProps) {
+function ProductCatalogContent({
+  products,
+  total,
+  page,
+  totalPages,
+  categories,
+  facets,
+}: ProductCatalogProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const sortedCategories = useMemo(
-    () => sortCategoryNames(categories),
-    [categories],
-  );
-  const brandOptions = useMemo(() => getBrandOptions(products), [products]);
-  const petTypeOptions = useMemo(
-    () => getPetTypeFilterOptions(products),
-    [products],
-  );
-  const lifeStageOptions = useMemo(
-    () => getLifeStageFilterOptions(products),
-    [products],
-  );
-  const breedSizeOptions = useMemo(
-    () => getBreedSizeFilterOptions(products),
-    [products],
-  );
-  const foodTypeOptions = useMemo(
-    () => getFoodTypeFilterOptions(products),
-    [products],
-  );
-  const flavorOptions = useMemo(
-    () => getFlavorFilterOptions(products),
-    [products],
-  );
-  const priceBounds = useMemo(() => getPriceBounds(products), [products]);
-  const packWeightBounds = useMemo(
-    () => getPackWeightBounds(products),
-    [products],
-  );
-  const currency = products[0]?.currency ?? "INR";
-
-  const [filters, setFilters] = useState<ProductFilterState>(
-    DEFAULT_PRODUCT_FILTERS,
-  );
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
-  useEffect(() => {
-    const query = searchParams.get("q") ?? "";
-    setFilters((current) =>
-      current.query === query ? current : { ...current, query },
-    );
-  }, [searchParams]);
-
-  const filteredProducts = useMemo(
-    () => filterProducts(products, filters, sortedCategories),
-    [filters, products, sortedCategories],
-  );
-
+  const sortedCategories = sortCategoryNames(categories);
+  const filters = parseCatalogFilters(searchParams);
   const activeFilterCount = countActiveFilters(filters);
 
+  function navigate(nextFilters: ProductFilterState, nextPage = 1) {
+    router.push(catalogHref(nextFilters, nextPage), { scroll: false });
+  }
+
   function handleClearFilters() {
-    setFilters(DEFAULT_PRODUCT_FILTERS);
+    navigate(DEFAULT_PRODUCT_FILTERS, 1);
   }
 
   const emptyMessage =
-    products.length === 0
+    total === 0 && activeFilterCount === 0
       ? "New products will show up here once they are added from the admin panel."
       : activeFilterCount > 0
         ? "No products match your filters. Try clearing a few options."
         : "Try another category to see more products.";
+
+  const showingFrom =
+    total === 0 ? 0 : (page - 1) * CATALOG_PAGE_SIZE + 1;
+  const showingTo = Math.min(page * CATALOG_PAGE_SIZE, total);
+
+  const filterPanel = (
+    <ProductFilters
+      filters={filters}
+      categories={sortedCategories}
+      brands={facets.brands}
+      petTypes={facets.petTypes}
+      lifeStages={facets.lifeStages}
+      breedSizes={facets.breedSizes}
+      foodTypes={facets.foodTypes}
+      flavors={facets.flavors}
+      priceBounds={facets.priceBounds}
+      packWeightBounds={facets.packWeightBounds}
+      currency={facets.currency}
+      onChange={(next) => navigate(next, 1)}
+      onClear={handleClearFilters}
+    />
+  );
 
   return (
     <section id="picks" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
@@ -125,21 +114,7 @@ function ProductCatalogContent({ products, categories }: ProductCatalogProps) {
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
         <aside className="hidden w-64 shrink-0 md:block">
           <div className="sticky top-24 rounded-2xl border border-border/80 bg-background p-5 shadow-sm">
-            <ProductFilters
-              filters={filters}
-              categories={sortedCategories}
-              brands={brandOptions}
-              petTypes={petTypeOptions}
-              lifeStages={lifeStageOptions}
-              breedSizes={breedSizeOptions}
-              foodTypes={foodTypeOptions}
-              flavors={flavorOptions}
-              priceBounds={priceBounds}
-              packWeightBounds={packWeightBounds}
-              currency={currency}
-              onChange={setFilters}
-              onClear={handleClearFilters}
-            />
+            {filterPanel}
           </div>
         </aside>
 
@@ -147,17 +122,14 @@ function ProductCatalogContent({ products, categories }: ProductCatalogProps) {
           <div className="flex flex-col gap-3 rounded-2xl border border-border/80 bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground">
-                Showing {filteredProducts.length} of {products.length} products
+                {total === 0
+                  ? "No products"
+                  : `Showing ${showingFrom}–${showingTo} of ${total} products`}
               </p>
-              {filters.query ? (
-                <p className="text-xs text-muted-foreground">
-                  Search: “{filters.query}”
-                </p>
-              ) : null}
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+              <Sheet>
                 <SheetTrigger
                   render={
                     <Button
@@ -174,26 +146,7 @@ function ProductCatalogContent({ products, categories }: ProductCatalogProps) {
                   <SheetHeader>
                     <SheetTitle>Filters</SheetTitle>
                   </SheetHeader>
-                  <div className="mt-6 overflow-y-auto pb-8">
-                    <ProductFilters
-                      filters={filters}
-                      categories={sortedCategories}
-                      brands={brandOptions}
-                      petTypes={petTypeOptions}
-                      lifeStages={lifeStageOptions}
-                      breedSizes={breedSizeOptions}
-                      foodTypes={foodTypeOptions}
-                      flavors={flavorOptions}
-                      priceBounds={priceBounds}
-                      packWeightBounds={packWeightBounds}
-                      currency={currency}
-                      onChange={setFilters}
-                      onClear={() => {
-                        handleClearFilters();
-                        setMobileFiltersOpen(false);
-                      }}
-                    />
-                  </div>
+                  <div className="mt-6 overflow-y-auto pb-8">{filterPanel}</div>
                 </SheetContent>
               </Sheet>
 
@@ -201,10 +154,13 @@ function ProductCatalogContent({ products, categories }: ProductCatalogProps) {
                 value={filters.sort}
                 onValueChange={(value) => {
                   if (!value) return;
-                  setFilters((current) => ({
-                    ...current,
-                    sort: value as ProductFilterState["sort"],
-                  }));
+                  navigate(
+                    {
+                      ...filters,
+                      sort: value as ProductFilterState["sort"],
+                    },
+                    1,
+                  );
                 }}
               >
                 <SelectTrigger className="h-9 w-full min-w-[180px] rounded-full sm:w-52">
@@ -221,7 +177,39 @@ function ProductCatalogContent({ products, categories }: ProductCatalogProps) {
             </div>
           </div>
 
-          <ProductGrid products={filteredProducts} emptyMessage={emptyMessage} />
+          <ActiveFilterChips
+            filters={filters}
+            onChange={(next) => navigate(next, 1)}
+            onClear={handleClearFilters}
+          />
+
+          <ProductGrid products={products} emptyMessage={emptyMessage} />
+
+          {totalPages > 1 ? (
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full"
+                disabled={page <= 1}
+                onClick={() => navigate(filters, page - 1)}
+              >
+                Previous
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full"
+                disabled={page >= totalPages}
+                onClick={() => navigate(filters, page + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

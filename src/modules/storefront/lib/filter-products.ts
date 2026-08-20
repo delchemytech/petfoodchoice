@@ -413,8 +413,6 @@ export function countActiveFilters(filters: ProductFilterState) {
     count += 1;
   }
   if (filters.minRating !== null) count += 1;
-  if (filters.stores.length > 0) count += 1;
   if (filters.onSaleOnly) count += 1;
-  if (filters.sort !== "featured") count += 1;
   return count;
 }
