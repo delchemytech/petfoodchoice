@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SlidersHorizontal } from "lucide-react";
+import { Loader2, SlidersHorizontal } from "lucide-react";
 import { sortCategoryNames } from "@/modules/common/lib/category-match";
 import { Button } from "@/modules/common/ui/button";
 import {
@@ -45,6 +45,9 @@ interface ProductCatalogProps {
   facets: CatalogFacets;
 }
 
+const FILTER_LOADING_MIN_MS = 320;
+const FILTER_LOADING_MAX_MS = 8000;
+
 function ProductCatalogContent({
   products,
   total,
@@ -55,13 +58,45 @@ function ProductCatalogContent({
 }: ProductCatalogProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
+  const loadStartedAt = useRef(0);
   const sortedCategories = sortCategoryNames(categories);
   const filters = parseCatalogFilters(searchParams);
   const activeFilterCount = countActiveFilters(filters);
+  const showFilterLoading = isFilterLoading || isPending;
 
   function navigate(nextFilters: ProductFilterState, nextPage = 1) {
-    router.push(catalogHref(nextFilters, nextPage), { scroll: false });
+    loadStartedAt.current = Date.now();
+    setIsFilterLoading(true);
+    startTransition(() => {
+      router.push(catalogHref(nextFilters, nextPage), { scroll: false });
+    });
   }
+
+  useEffect(() => {
+    if (!isFilterLoading) return;
+
+    const elapsed = Date.now() - loadStartedAt.current;
+    if (elapsed < 20) return;
+
+    const wait = Math.max(0, FILTER_LOADING_MIN_MS - elapsed);
+    const timeout = window.setTimeout(() => {
+      setIsFilterLoading(false);
+    }, wait);
+
+    return () => window.clearTimeout(timeout);
+  }, [facets, isFilterLoading, page, products, total]);
+
+  useEffect(() => {
+    if (!isFilterLoading) return;
+
+    const timeout = window.setTimeout(() => {
+      setIsFilterLoading(false);
+    }, FILTER_LOADING_MAX_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, [isFilterLoading]);
 
   function handleClearFilters() {
     navigate(DEFAULT_PRODUCT_FILTERS, 1);
@@ -183,7 +218,26 @@ function ProductCatalogContent({
             onClear={handleClearFilters}
           />
 
-          <ProductGrid products={products} emptyMessage={emptyMessage} />
+          <div className="relative min-h-48" aria-busy={showFilterLoading} aria-live="polite">
+            <div
+              className={
+                showFilterLoading
+                  ? "pointer-events-none opacity-40 transition-opacity"
+                  : "transition-opacity"
+              }
+            >
+              <ProductGrid products={products} emptyMessage={emptyMessage} />
+            </div>
+            {showFilterLoading ? (
+              <div
+                className="absolute inset-0 z-10 flex items-start justify-center pt-16 sm:pt-24"
+                role="status"
+              >
+                <Loader2 className="size-10 animate-spin text-primary" />
+                <span className="sr-only">Updating products...</span>
+              </div>
+            ) : null}
+          </div>
 
           {totalPages > 1 ? (
             <div className="flex items-center justify-center gap-3 pt-2">
@@ -191,7 +245,7 @@ function ProductCatalogContent({
                 type="button"
                 variant="outline"
                 className="rounded-full"
-                disabled={page <= 1}
+                disabled={showFilterLoading || page <= 1}
                 onClick={() => navigate(filters, page - 1)}
               >
                 Previous
@@ -203,7 +257,7 @@ function ProductCatalogContent({
                 type="button"
                 variant="outline"
                 className="rounded-full"
-                disabled={page >= totalPages}
+                disabled={showFilterLoading || page >= totalPages}
                 onClick={() => navigate(filters, page + 1)}
               >
                 Next
