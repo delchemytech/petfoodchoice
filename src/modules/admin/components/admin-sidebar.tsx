@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Store } from "lucide-react";
 import {
@@ -26,8 +27,14 @@ export function AdminSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link href="/admin/dashboard" />}>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Store className="size-4" />
+              <div className="flex aspect-square size-10 items-center justify-center rounded-lg overflow-hidden p-1">
+                <Image
+                  src="/images/logo2.png"
+                  alt="Petfoodchoice Logo"
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-contain mix-blend-multiply"
+                />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">Petfoodchoice</span>

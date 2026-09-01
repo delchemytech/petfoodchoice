@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Menu, ShoppingBag } from "lucide-react";
 import { Button } from "@/modules/common/ui/button";
@@ -26,11 +27,18 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-auto max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:h-16 lg:flex-row lg:items-center lg:gap-4 lg:py-0">
         <div className="flex items-center gap-4">
-          <Link href="/" className="flex shrink-0 items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
-              <ShoppingBag className="size-4" />
+          <Link href="/" className="flex shrink-0 items-center gap-3 group">
+            <div className="relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+              <Image
+                src="/images/logo2.png"
+                alt="Petfoodchoice Logo"
+                width={160}
+                height={160}
+                className="h-14 w-auto mix-blend-multiply"
+                priority
+              />
             </div>
-            <span className="font-heading text-lg font-semibold tracking-tight text-foreground">
+            <span className="font-heading text-2xl font-bold tracking-tight text-foreground">
               Pet<span className="text-primary">foodchoice</span>
             </span>
           </Link>

@@ -19,7 +19,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "PETFOODCHOICE | Curated Pet Food Deals",
+  title: "Petfoodchoice",
   description:
     "Browse curated affiliate products and get the best prices on Amazon and partner stores.",
 };
