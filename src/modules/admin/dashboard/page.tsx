@@ -16,7 +16,7 @@ export default async function DashboardPage() {
     <>
       <PageHeader
         title="Dashboard"
-        description="Overview of your PETFOODCHOICE catalog."
+        description="Overview of your Petfoodchoice catalog."
         actions={
           <Button className="w-full sm:w-auto" render={<Link href="/admin/products/add" />}>
             <Plus data-icon="inline-start" />

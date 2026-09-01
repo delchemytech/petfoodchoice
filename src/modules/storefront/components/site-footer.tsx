@@ -23,7 +23,7 @@ export async function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div className="space-y-3">
           <p className="font-heading text-2xl font-semibold">
-            PET<span className="text-primary">FOODCHOICE</span>
+            Pet<span className="text-primary">foodchoice</span>
           </p>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
             Your online pet store for food, treats, and everyday essentials —
@@ -65,7 +65,7 @@ export async function SiteFooter() {
       </div>
 
       <div className="border-t border-border/60 px-4 py-5 text-center text-xs text-muted-foreground sm:px-6">
-        © {new Date().getFullYear()} PETFOODCHOICE. All rights reserved.
+        © {new Date().getFullYear()} Petfoodchoice. All rights reserved.
       </div>
     </footer>
   );

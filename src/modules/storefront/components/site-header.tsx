@@ -31,7 +31,7 @@ export function SiteHeader() {
               <ShoppingBag className="size-4" />
             </div>
             <span className="font-heading text-lg font-semibold tracking-tight text-foreground">
-              PET<span className="text-primary">FOODCHOICE</span>
+              Pet<span className="text-primary">foodchoice</span>
             </span>
           </Link>
 

@@ -51,7 +51,7 @@ export function buildArticleSchemaJsonLd(values: {
       : undefined,
     publisher: {
       "@type": "Organization",
-      name: "PETFOODCHOICE",
+      name: "Petfoodchoice",
     },
     datePublished: values.publishedAt || values.updatedAt,
     dateModified: values.updatedAt,

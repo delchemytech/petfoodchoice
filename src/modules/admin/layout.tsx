@@ -3,7 +3,7 @@ import { requireAdminOrRedirect } from "@/modules/auth/lib/require-admin";
 import { AdminShell } from "./components/admin-shell";
 
 export const metadata: Metadata = {
-  title: "Admin | PETFOODCHOICE",
+  title: "Admin | Petfoodchoice",
 };
 
 export default async function AdminLayout({
