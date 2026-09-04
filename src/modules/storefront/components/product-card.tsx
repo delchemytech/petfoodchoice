@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import { formatPrice, formatSavings } from "../lib/format-price";
 import { getProductBadgeLabel } from "../lib/store-offers";
 import type { StorefrontProduct } from "../types";
+import { CompareToggleButton } from "./compare-toggle-button";
 
 interface ProductCardProps {
   product: StorefrontProduct;
@@ -44,6 +45,8 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
               {product.discountPercentage}% OFF
             </span>
           ) : null}
+
+          <CompareToggleButton product={product} />
 
           <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-foreground uppercase backdrop-blur">
             {getProductBadgeLabel(product)}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Menu, ShoppingBag } from "lucide-react";
+import { Menu, Scale, ShoppingBag } from "lucide-react";
 import { Button } from "@/modules/common/ui/button";
 import {
   Sheet,
@@ -12,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/modules/common/ui/sheet";
+import { useCompare } from "../lib/compare-context";
 import { HeaderSearch } from "./header-search";
 
 const navLinks = [
@@ -22,6 +23,17 @@ const navLinks = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { compareMode, setCompareMode, selectedProducts, clearAll } =
+    useCompare();
+
+  function handleCompareToggle() {
+    if (compareMode) {
+      // Exiting compare mode — clear selections
+      clearAll();
+    } else {
+      setCompareMode(true);
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-md">
@@ -103,6 +115,21 @@ export function SiteHeader() {
         <div className="flex w-full items-center gap-2 lg:ml-auto lg:w-auto">
           <HeaderSearch />
           <Button
+            variant={compareMode ? "default" : "outline"}
+            className="relative shrink-0 rounded-full px-3 sm:px-4"
+            onClick={handleCompareToggle}
+          >
+            <Scale data-icon="inline-start" />
+            <span className="hidden sm:inline">
+              {compareMode ? "Cancel" : "Compare"}
+            </span>
+            {compareMode && selectedProducts.length > 0 ? (
+              <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-primary-foreground text-[10px] font-bold text-primary shadow-sm">
+                {selectedProducts.length}
+              </span>
+            ) : null}
+          </Button>
+          <Button
             className="hidden rounded-full px-4 sm:inline-flex"
             render={<Link href="/#picks" />}
           >
@@ -114,3 +141,4 @@ export function SiteHeader() {
     </header>
   );
 }
+

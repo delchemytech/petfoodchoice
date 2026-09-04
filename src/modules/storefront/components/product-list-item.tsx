@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import { formatPrice, formatSavings } from "../lib/format-price";
 import { getProductBadgeLabel } from "../lib/store-offers";
 import type { StorefrontProduct } from "../types";
+import { CompareToggleButton } from "./compare-toggle-button";
 
 interface ProductListItemProps {
   product: StorefrontProduct;
@@ -48,6 +49,7 @@ export function ProductListItem({
             {product.discountPercentage}% OFF
           </span>
         ) : null}
+        <CompareToggleButton product={product} />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 py-0.5">
