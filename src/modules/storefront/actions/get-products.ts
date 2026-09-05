@@ -22,6 +22,8 @@ export async function getStorefrontProducts(
     .eq("website_id", websiteId)
     .eq("status", "active")
     .eq("delete", NOT_DELETE)
+    .order("rating", { ascending: false, nullsFirst: false })
+    .order("total_reviews", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   if (limit && limit > 0) {

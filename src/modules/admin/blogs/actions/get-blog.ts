@@ -6,12 +6,13 @@ import { NOT_DELETE } from "../lib/blog-filters";
 import type { Blog } from "../types";
 
 export async function getBlog(id: string): Promise<Blog | null> {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data, error } = await supabase
     .from("blogs")
     .select(BLOG_SELECT)
     .eq("id", id)
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .maybeSingle();
 

@@ -204,6 +204,9 @@ export function applyCatalogSort(query: FilterQuery, sort: ProductSortOption) {
       });
     case "featured":
     default:
-      return query.order("created_at", { ascending: false });
+      return query
+        .order("rating", { ascending: false, nullsFirst: false })
+        .order("total_reviews", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
   }
 }

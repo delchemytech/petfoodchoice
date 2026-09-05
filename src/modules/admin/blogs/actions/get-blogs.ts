@@ -6,11 +6,12 @@ import { NOT_DELETE } from "../lib/blog-filters";
 import type { Blog } from "../types";
 
 export async function getBlogs(): Promise<Blog[]> {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
 
   const { data, error } = await supabase
     .from("blogs")
     .select(BLOG_SELECT)
+    .eq("website_id", websiteId)
     .eq("delete", NOT_DELETE)
     .order("created_at", { ascending: false });
 

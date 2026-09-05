@@ -39,6 +39,7 @@ export default async function StorefrontPage({
 
   return (
     <>
+      <h1 className="sr-only">Buy premium Pet food for Dogs & Cats</h1>
       <HeroSection products={heroProducts} />
       <ValueTicker />
       <ProductCatalog
