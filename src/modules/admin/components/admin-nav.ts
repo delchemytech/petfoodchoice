@@ -5,6 +5,7 @@ import {
   Package,
   PackageSearch,
   Tags,
+  UploadCloud,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,6 +30,11 @@ export const adminNavItems: AdminNavItem[] = [
     title: "Bulk Fetch",
     href: "/admin/bulk-fetch",
     icon: PackageSearch,
+  },
+  {
+    title: "CSV Import",
+    href: "/admin/csv-import",
+    icon: UploadCloud,
   },
   {
     title: "Categories",
@@ -60,6 +66,7 @@ export function getAdminPageTitle(pathname: string): string {
   if (pathname.startsWith("/admin/products/edit")) return "Edit Product";
   if (pathname.startsWith("/admin/products")) return "Products";
   if (pathname.startsWith("/admin/bulk-fetch")) return "Bulk Fetch";
+  if (pathname.startsWith("/admin/csv-import")) return "CSV Import";
   if (pathname.startsWith("/admin/categories")) return "Categories";
   if (pathname.startsWith("/admin/blogs/add")) return "New Blog";
   if (pathname.startsWith("/admin/blogs/edit")) return "Edit Blog";
