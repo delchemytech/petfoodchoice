@@ -118,12 +118,14 @@ function buildSeoPayload(
 export function mapFormToInsert(
   values: BlogFormValues,
   mode: BlogSaveMode,
+  websiteId: string,
 ): BlogInsert {
   const publish = mode === "publish";
   const now = new Date().toISOString();
   const withDefaults = applySeoDefaults(values);
 
   return {
+    website_id: websiteId,
     title: withDefaults.title.trim(),
     slug: withDefaults.slug,
     content: withDefaults.content,

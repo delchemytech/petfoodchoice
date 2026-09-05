@@ -12,7 +12,7 @@ export async function createBlog(
   values: BlogFormValues,
   _mode: BlogSaveMode = "draft",
 ) {
-  const { supabase } = await requireAdmin();
+  const { supabase, websiteId } = await requireAdmin();
   const mode: BlogSaveMode = "draft";
   const parsed = parseBlogFormValues(values, mode);
 
@@ -21,7 +21,7 @@ export async function createBlog(
   }
 
   const normalized = await normalizeBlogValuesForSave(supabase, parsed.data);
-  const payload: BlogInsert = mapFormToInsert(normalized, mode);
+  const payload: BlogInsert = mapFormToInsert(normalized, mode, websiteId);
 
   const { data, error } = await supabase
     .from("blogs")
